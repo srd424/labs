@@ -3,18 +3,18 @@
     "lib": {
       "locked": {
         "dir": "lib",
-        "lastModified": 1718089818,
-        "narHash": "sha256-vBMt68NW0WAsPdHj301T9QjcnF/167D5eOIpzDPEZUw=",
+        "lastModified": 1718091078,
+        "narHash": "sha256-sz5UvgvXWA+YYEssziIF/lNQVpZMOelZHqEta6WN+5M=",
         "ref": "refs/heads/main",
-        "rev": "29146add9eaf367e6adddc939ed38b0f61863177",
-        "revCount": 41,
+        "rev": "8ef24400294bb3c65df1ac19cec0bbeec9586c76",
+        "revCount": 43,
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=lib"
+        "url": "https://github.com/srd424/labs?dir=lib"
       },
       "original": {
         "dir": "lib",
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=lib"
+        "url": "https://github.com/srd424/labs?dir=lib"
       }
     },
     "root": {
