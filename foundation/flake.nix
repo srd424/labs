@@ -36,5 +36,8 @@
       in
         result.config.exports.resolved.packages
     );
+    
+    hydraJobs = packages;
+
   };
 }
