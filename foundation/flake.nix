@@ -37,7 +37,9 @@
         result.config.exports.resolved.packages
     );
     
-    hydraJobs = packages;
+    hydraJobs = {
+      build = packages;
+    };
 
   };
 }
