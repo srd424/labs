@@ -15,7 +15,7 @@
     forEachSystem = lib.attrs.generate [
       "i686-linux"
     ];
-  in {
+  in rec {
     extras = let
       result = lib.modules.run {
         modules =
