@@ -3,7 +3,8 @@
 
   inputs = {
     lib = {
-      url = "path:../lib";
+#      url = "path:../lib";
+       url = "git+http://github.com/srd424/labs?dir=lib";
     };
   };
 
