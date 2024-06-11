@@ -4,7 +4,7 @@
   inputs = {
     lib = {
 #      url = "path:../lib";
-       url = "git+http://github.com/srd424/labs?dir=lib";
+       url = "git+https://github.com/srd424/labs?dir=lib";
     };
   };
 
