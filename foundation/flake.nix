@@ -4,6 +4,7 @@
   inputs = {
     lib = {
 #      url = "path:../lib";
+# https://github.com/NixOS/nix/issues/3978
        url = "git+https://github.com/srd424/labs?dir=lib";
     };
   };
