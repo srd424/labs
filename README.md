@@ -9,7 +9,8 @@ to be used by anyone yet due to their highly unstable nature. However, we
 have decided to publish them here together so that members of the community
 may collaborate.
 
-> **Note**: This repository is a part of Aux's early ad-hoc structure. In the
+> **Note**
+> This repository is a part of Aux's early ad-hoc structure. In the
 > future we will be moving to a standardized Aux Enhancement Proposal (AEP)
 > format.
 

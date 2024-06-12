@@ -42,7 +42,8 @@ has no dependencies. _Everything_ else must be built from scratch in the package
 
 ### Formatting
 
-> **Note:** To keep this flake light and keep its inputs empty we do not include a package
+> **Note**
+> To keep this flake light and keep its inputs empty we do not include a package
 > set which would provide a formatter. Instead please run `nix run nixpkgs#nixfmt-rfc-style`
 > until an improved solution is available.
 
