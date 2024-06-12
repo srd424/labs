@@ -11,7 +11,7 @@ The library can be imported both with and without Nix Flakes. To import the libr
 add this repository as an input.
 
 ```nix
-inputs.lib.url = "github:auxolotl/labs?dir=lib";
+inputs.lib.url = "https://git.auxolotl.org/auxolotl/labs/archive/main.tar.gz?dir=lib";
 ```
 
 To import the library without using Nix Flakes, you will need to use `fetchTarball` and import the
@@ -20,7 +20,7 @@ library entrypoint.
 ```nix
 let
     labs = builtins.fetchTarball {
-        url = "https://github.com/auxolotl/labs/archive/main.tar.gz";
+        url = "https://git.auxolotl.org/auxolotl/labs/archive/main.tar.gz";
         sha256 = "<sha256>";
     };
     lib = import "${labs}/lib";

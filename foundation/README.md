@@ -9,7 +9,7 @@ Packages can be imported both with and without Nix Flakes. To import them using 
 add this repository as an input.
 
 ```nix
-inputs.foundation.url = "github:auxolotl/labs?dir=foundation";
+inputs.foundation.url = "https://git.auxolotl.org/auxolotl/labs/archive/main.tar.gz?dir=foundation";
 ```
 
 To import this library without using Nix Flakes, you will need to use `fetchTarball` and
@@ -18,7 +18,7 @@ import the library entrypoint.
 ```nix
 let
     labs = builtins.fetchTarball {
-        url = "https://github.com/auxolotl/labs/archive/main.tar.gz";
+        url = "https://git.auxolotl.org/auxolotl/labs/archive/main.tar.gz";
         sha256 = "<sha256>";
     };
     foundation = import "${labs}/foundation" {
