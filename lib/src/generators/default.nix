@@ -68,7 +68,7 @@ lib: {
             escapedLines = builtins.map escapeMultiline lines;
             # The last line gets a special treatment: if it's empty, '' is on its own line at the "outer"
             # indentation level. Otherwise, '' is appended to the last line.
-            lastLine = lib.last escapedLines;
+            lastLine = lib.lists.last escapedLines;
             contents = builtins.concatStringsSep prefix (lib.lists.init escapedLines);
             contentsSuffix =
               if lastLine == ""

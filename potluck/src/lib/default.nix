@@ -6,10 +6,9 @@
 in {
   includes = [
     ./options.nix
+    ./systems.nix
     ./types.nix
   ];
-
-  freeform = lib.types.any;
 
   options = {
     lib = lib.options.create {

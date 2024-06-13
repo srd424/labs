@@ -7,6 +7,7 @@
 in {
   config = {
     exports = {
+      lib = config.lib;
       modules = import ./modules.nix;
     };
   };

@@ -8,10 +8,10 @@
       },
       "locked": {
         "dir": "foundation",
-        "dirtyRev": "f24f0876a9103c7adb8120ce9709fb90c73f2a7c-dirty",
-        "dirtyShortRev": "f24f087-dirty",
-        "lastModified": 1718105966,
-        "narHash": "sha256-cvGKyJzoPAXjuM+YDpQM30qwshgoYZmAYtJywFPyfGI=",
+        "dirtyRev": "cd12786be17a611976b44fbba3e245eca512535f-dirty",
+        "dirtyShortRev": "cd12786-dirty",
+        "lastModified": 1718199069,
+        "narHash": "sha256-H2Mkyp9BPDPte+E++uIG2N/vGtcS3H9Q7tM3fOOEXT0=",
         "type": "git",
         "url": "file:../?dir=foundation"
       },
@@ -24,10 +24,10 @@
     "lib": {
       "locked": {
         "dir": "lib",
-        "dirtyRev": "f24f0876a9103c7adb8120ce9709fb90c73f2a7c-dirty",
-        "dirtyShortRev": "f24f087-dirty",
-        "lastModified": 1718105966,
-        "narHash": "sha256-cvGKyJzoPAXjuM+YDpQM30qwshgoYZmAYtJywFPyfGI=",
+        "dirtyRev": "cd12786be17a611976b44fbba3e245eca512535f-dirty",
+        "dirtyShortRev": "cd12786-dirty",
+        "lastModified": 1718199069,
+        "narHash": "sha256-H2Mkyp9BPDPte+E++uIG2N/vGtcS3H9Q7tM3fOOEXT0=",
         "type": "git",
         "url": "file:../?dir=lib"
       },

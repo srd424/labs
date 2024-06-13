@@ -66,6 +66,38 @@ lib: {
       then lib.attrs.select path null target
       else error;
 
+    ## Zip specific attributes from a list of attribute sets.
+    ##
+    ## @type List String -> (List Any -> Any) -> List Attrs -> Attrs
+    zipWithNames = names: f: list: let
+      transform = name: {
+        inherit name;
+        value = f name (builtins.catAttrs name list);
+      };
+      results = builtins.map transform names;
+    in
+      builtins.listToAttrs results;
+
+    ## Match an attribute set against a pattern.
+    ##
+    ## @type Attrs -> Attrs -> Bool
+    match = pattern: value: let
+      process = name: values: let
+        first = builtins.elemAt values 0;
+        second = builtins.elemAt values 1;
+      in
+        if builtins.length values == 1
+        then false
+        else if builtins.isAttrs first
+        then builtins.isAttrs second && lib.attrs.match first second
+        else first == second;
+
+      result = lib.attrs.zipWithNames (builtins.attrNames pattern) process [pattern value];
+    in
+      assert lib.errors.trace (builtins.isAttrs pattern) "Pattern must be an attribute set";
+      assert lib.errors.trace (builtins.isAttrs value) "Value must be an attribute set";
+        builtins.all lib.fp.id (builtins.attrValues result);
+
     ## Create a nested attribute set with a value as the leaf node.
     ##
     ## @type (List String) -> a -> Attrs

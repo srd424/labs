@@ -5,10 +5,20 @@ lib: {
     ## @type String -> String -> Bool
     gt = first: second: builtins.compareVersions first second == -1;
 
+    ## Check if a version is greater than or equal to another.
+    ##
+    ## @type String -> String -> Bool
+    gte = first: second: builtins.compareVersions first second != 1;
+
     ## Check if a version is less than another.
     ##
     ## @type String -> String -> Bool
     lt = first: second: builtins.compareVersions first second == 1;
+
+    ## Check if a version is less than or equal to another.
+    ##
+    ## @type String -> String -> Bool
+    lte = first: second: builtins.compareVersions first second != -1;
 
     ## Check if a version is equal to another.
     ##

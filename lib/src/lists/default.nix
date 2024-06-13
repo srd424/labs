@@ -154,6 +154,13 @@ lib: {
     in
       lib.lists.slice count listLength list;
 
+    ## Take all but the last element of a list.
+    ##
+    ## @type List -> List
+    init = list:
+      assert lib.errors.trace (builtins.length list != 0) "lib.lists.init: list must not be empty.";
+        lib.lists.take (builtins.length list - 1) list;
+
     ## Reverse a list.
     ##
     ## @type List -> List
