@@ -8,7 +8,7 @@
   setTypes = type: let
     assign = name: value:
       assert lib.errors.trace (type.check value) "${name} is not of type ${type.name}: ${lib.generators.pretty {} value}";
-        lib.types.set name ({inherit name;} // value);
+        lib.types.set type.name ({inherit name;} // value);
   in
     builtins.mapAttrs assign;
 
