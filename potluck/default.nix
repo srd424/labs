@@ -10,21 +10,24 @@
       ++ [
         ./src/export.nix
         {
-          __file__ = ./default.nix;
+          __file__ = "broken";
 
-          options.packages.aux = {
-            foundation = lib.options.create {
-              type = lib.types.attrs.of lib.types.package;
-              internal = true;
-              description = "The foundational packages used to construct the larger package set.";
-            };
-          };
+          # options.foundation = lib.options.create {
+          #   type = lib.types.attrs.of lib.types.derivation;
+          # };
 
-          config.packages.aux = {
-            foundation = foundation;
-          };
+          # config.foundation = foundation;
+          config.packages.foundation =
+            builtins.mapAttrs (name: package: {
+              name = package.name;
+
+              inherit package;
+
+              meta = package.meta;
+            })
+            foundation;
         }
       ];
   };
 in
-  result.config.exported
+  result.config

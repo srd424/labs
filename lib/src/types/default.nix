@@ -750,10 +750,16 @@ lib: {
         description ? null,
       }: let
         getModules = builtins.map (
-          definition: {
-            __file__ = definition.__file__;
-            includes = [definition.value];
-          }
+          definition:
+            if builtins.isAttrs definition
+            then {
+              __file__ = definition.__file__;
+              config = definition.value;
+            }
+            else {
+              __file__ = definition.__file__;
+              includes = [definition.value];
+            }
         );
 
         base = lib.modules.run {
@@ -762,9 +768,6 @@ lib: {
           modules =
             [
               {
-                options.__module__.args.dynamic.name = lib.options.create {
-                  type = lib.types.string;
-                };
                 config.__module__.args.dynamic.name = lib.modules.overrides.default "<name>";
               }
             ]
@@ -989,7 +992,7 @@ lib: {
     ## @type List Attrs -> Attrs
     one = types: let
       first = builtins.elemAt types 0;
-      rest = lib.lists.tail types;
+      rest = builtins.tail types;
     in
       if types == []
       then builtins.throw "lib.types.one must be given at least one type"

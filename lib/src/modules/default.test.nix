@@ -423,5 +423,36 @@ in {
       };
     in
       evaluated.config.aux.message == expected;
+
+    "submodules" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                default.value = {
+                  message = "hi";
+                };
+                type = lib.types.attrs.of (lib.types.submodule ({name}: {
+                  # freeform = lib.types.any;
+                  options.message = lib.options.create {
+                    type = lib.types.string;
+                  };
+                }));
+              };
+            };
+            config = {
+              aux = {
+                x = {
+                  message = "Hello, World!";
+                };
+              };
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.x.message == expected;
   };
 }

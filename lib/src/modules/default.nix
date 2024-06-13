@@ -187,7 +187,7 @@ lib: {
         in
           withFreeform (withMeta base);
       }
-      else builtins.throw "Module `${key}` has unsupported attribute(s): ${invalidKeys}";
+      else builtins.throw "Module `${key}` (${file}) has unsupported attribute(s): ${invalidKeys}";
 
     ## Convert a module that is either a function or an attribute set into
     ## a resolved attribute set. If the module was a function then it will
@@ -428,7 +428,7 @@ lib: {
                   matched = lib.options.run location option definitions';
                   unmatched = [];
                 }
-                else builtins.throw "The option `${lib.options.getIdentifier location}` in module `${(builtins.head optionDeclarations).__file__}` does not support nested options."
+                else builtins.throw "The option `${lib.options.getIdentifier location}` in module `${(builtins.head optionDeclarations).__file__}` would be a parent of the following options, but its type `${(builtins.head optionDeclarations).options.type.description or "<no description>"}` does not support nested options."
               else process location declarations definitions
           )
           declarationsByName;
@@ -611,7 +611,7 @@ lib: {
         collected =
           collect
           (args.path or "")
-          (modules ++ [internal])
+          ([internal] ++ modules)
           (
             {
               inherit options config;
@@ -625,7 +625,8 @@ lib: {
             // args
           );
       in
-        lib.modules.combine prefix (lib.lists.reverse collected);
+        lib.modules.combine
+        prefix (lib.lists.reverse collected);
 
       options = merged.matched;
 

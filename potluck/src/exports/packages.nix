@@ -2,6 +2,7 @@
   config,
   lib,
 }: let
+  lib' = config.lib;
 in {
   options = {
     exports.packages = lib.options.create {
@@ -14,6 +15,8 @@ in {
   };
 
   config = {
-    exported.packages = {};
+    exported.packages = {
+      # i686-linux = config.packages.foundation;
+    };
   };
 }

@@ -107,164 +107,354 @@ in {
         };
       };
 
-      package = lib.types.submodule ({config}: {
-        freeform = lib.types.any;
+      package = {
+        base = lib.types.submodule ({config}: {
+          freeform = lib.types.any;
 
-        options = {
-          name = lib.options.create {
-            type = lib.types.string;
-            default = {
-              value = "${config.pname}-${config.version or "unknown"}";
-              text = "\${config.pname}-\${config.version}";
-            };
-            description = "The name of the package.";
-          };
-
-          pname = lib.options.create {
-            type = lib.types.nullish lib.types.string;
-            default.value = null;
-            description = "The name of the package.";
-          };
-
-          version = lib.options.create {
-            type = lib.types.nullish lib.types.string;
-            default.value = null;
-            description = "The version of the package.";
-          };
-
-          meta = lib.options.create {
-            type = lib'.types.meta;
-            default = {
-              text = "{ name = <package>.pname; }";
-              value = {
-                name = config.pname;
+          options = {
+            name = lib.options.create {
+              type = lib.types.string;
+              default = {
+                value = "${config.pname}-${config.version or "unknown"}";
+                text = "\${config.pname}-\${config.version}";
               };
-            };
-            description = "The metadata for the package.";
-          };
-
-          env = lib.options.create {
-            type = lib.types.attrs.of lib.types.string;
-            default.value = {};
-            description = "Environment variables for the package's builder to use.";
-          };
-
-          phases = lib.options.create {
-            type = lib.types.dag.of (
-              lib.types.either
-              lib.types.string
-              (lib.types.function lib.types.string)
-            );
-            default.value = {};
-            description = "Phases for the package's builder to use.";
-          };
-
-          platform = {
-            build = lib.options.create {
-              type = lib.types.string;
-              description = "The platform the package is built on.";
+              description = "The name of the package.";
             };
 
-            host = lib.options.create {
-              type = lib.types.string;
-              description = "The platform the package is run on.";
+            pname = lib.options.create {
+              type = lib.types.nullish lib.types.string;
+              default.value = null;
+              description = "The name of the package.";
             };
 
-            target = lib.options.create {
-              type = lib.types.string;
-              description = "The platform the package generates code for.";
+            version = lib.options.create {
+              type = lib.types.nullish lib.types.string;
+              default.value = null;
+              description = "The version of the package.";
             };
-          };
 
-          builder = lib.options.create {
-            type = lib'.types.builder;
-            description = "The builder for the package.";
-          };
-
-          package = lib.options.create {
-            type = lib.types.derivation;
-            default = {
-              value = config.builder.build config.builder config;
-              text = "<derivation>";
-            };
-            description = "The package derivation.";
-          };
-
-          deps = {
-            build = {
-              only = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are only used in the build environment.";
+            meta = lib.options.create {
+              type = lib'.types.meta;
+              default = {
+                text = "{ name = <package>.pname; }";
+                value = {
+                  name = config.pname;
+                };
               };
+              description = "The metadata for the package.";
+            };
 
+            env = lib.options.create {
+              type = lib.types.attrs.of lib.types.string;
+              default.value = {};
+              description = "Environment variables for the package's builder to use.";
+            };
+
+            phases = lib.options.create {
+              type = lib.types.dag.of (
+                lib.types.either
+                lib.types.string
+                (lib.types.function lib.types.string)
+              );
+              default.value = {};
+              description = "Phases for the package's builder to use.";
+            };
+
+            platform = {
               build = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are created in the build environment and are run in the build environment.";
+                type = lib.types.nullish lib.types.string;
+                default.value = null;
+                description = "The platform the package is built on.";
               };
 
               host = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are created in the build environment and are run in the host environment.";
+                type = lib.types.nullish lib.types.string;
+                default.value = null;
+                description = "The platform the package is run on.";
               };
 
               target = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are created in the build environment and are run in the target environment.";
+                type = lib.types.nullish lib.types.string;
+                default.value = null;
+                description = "The platform the package generates code for.";
               };
             };
 
-            host = {
-              only = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are only used in the host environment.";
+            builder = lib.options.create {
+              type = lib'.types.builder;
+              description = "The builder for the package.";
+            };
+
+            package = lib.options.create {
+              type = lib.types.derivation;
+              default = {
+                value = config.builder.build config.builder config;
+                text = "<derivation>";
+              };
+              description = "The package derivation.";
+            };
+
+            deps = {
+              build = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the build environment.";
+                };
+
+                build = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the build environment.";
+                };
+
+                host = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the host environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the target environment.";
+                };
+              };
+
+              host = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the host environment.";
+                };
+
+                host = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the host environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the host environment which produces code for the target environment.";
+                };
+              };
+
+              target = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the target environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the target environment.";
+                };
+              };
+            };
+
+            versions = lib.options.create {
+              type = lib.types.attrs.of lib'.types.package;
+              default.value = {};
+              description = "Available versions of the package.";
+            };
+          };
+        });
+
+        targeted = lib.types.submodule ({config}: {
+          freeform = lib.types.any;
+
+          options = {
+            name = lib.options.create {
+              type = lib.types.string;
+              default = {
+                value = "${config.pname}-${config.version or "unknown"}";
+                text = "\${config.pname}-\${config.version}";
+              };
+              description = "The name of the package.";
+            };
+
+            pname = lib.options.create {
+              type = lib.types.nullish lib.types.string;
+              default.value = null;
+              description = "The name of the package.";
+            };
+
+            version = lib.options.create {
+              type = lib.types.nullish lib.types.string;
+              default.value = null;
+              description = "The version of the package.";
+            };
+
+            meta = lib.options.create {
+              type = lib'.types.meta;
+              default = {
+                text = "{ name = <package>.pname; }";
+                value = {
+                  name = config.pname;
+                };
+              };
+              description = "The metadata for the package.";
+            };
+
+            env = lib.options.create {
+              type = lib.types.attrs.of lib.types.string;
+              default.value = {};
+              description = "Environment variables for the package's builder to use.";
+            };
+
+            phases = lib.options.create {
+              type = lib.types.dag.of (
+                lib.types.either
+                lib.types.string
+                (lib.types.function lib.types.string)
+              );
+              default.value = {};
+              description = "Phases for the package's builder to use.";
+            };
+
+            platform = {
+              build = lib.options.create {
+                type = lib.types.string;
+                description = "The platform the package is built on.";
               };
 
               host = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are run in the host environment.";
+                type = lib.types.string;
+                description = "The platform the package is run on.";
               };
 
               target = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are run in the host environment which produces code for the target environment.";
+                type = lib.types.string;
+                description = "The platform the package generates code for.";
               };
             };
 
-            target = {
-              only = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are only used in the target environment.";
+            builder = lib.options.create {
+              type = lib'.types.builder;
+              description = "The builder for the package.";
+            };
+
+            package = lib.options.create {
+              type = lib.types.derivation;
+              default = {
+                value = config.builder.build config.builder config;
+                text = "<derivation>";
+              };
+              description = "The package derivation.";
+            };
+
+            deps = {
+              build = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the build environment.";
+                };
+
+                build = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the build environment.";
+                };
+
+                host = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the host environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are created in the build environment and are run in the target environment.";
+                };
               };
 
-              target = lib.options.create {
-                type = lib'.types.dependencies;
-                default.value = {};
-                description = "Dependencies which are run in the target environment.";
+              host = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the host environment.";
+                };
+
+                host = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the host environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the host environment which produces code for the target environment.";
+                };
+              };
+
+              target = {
+                only = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are only used in the target environment.";
+                };
+
+                target = lib.options.create {
+                  type = lib'.types.dependencies;
+                  default.value = {};
+                  description = "Dependencies which are run in the target environment.";
+                };
               };
             };
-          };
 
-          versions = lib.options.create {
-            type = lib.types.attrs.of lib'.types.package;
-            default.value = {};
-            description = "Available versions of the package.";
+            versions = lib.options.create {
+              type = lib.types.attrs.of lib'.types.package;
+              default.value = {};
+              description = "Available versions of the package.";
+            };
           };
-        };
-      });
+        });
+      };
 
       dependencies = lib.types.attrs.of (lib.types.nullish lib'.types.package);
 
-      packages = lib.types.attrs.of (lib.types.submodule {
-        freeform = lib.types.nullish lib'.types.package;
-      });
+      packages = {
+        base = lib.types.attrs.of (lib.types.submodule {
+          freeform = lib'.types.package.base;
+
+          # options =
+          #   builtins.foldl' (result: system: {
+          #     "${system}" = lib.options.create {
+          #       type = lib'.types.packages.targeted;
+          #       default.value = {};
+          #       description = "Packages for the architecture `${system}`";
+          #     };
+          #   }) {}
+          #   lib'.systems.doubles.all;
+        });
+
+        targeted = lib.types.attrs.of (lib.types.submodule {
+          freeform = lib.types.nullish lib'.types.package.targeted;
+
+          options = {
+            cross = lib.options.create {
+              type = lib'.types.packages.cross;
+              default.value = {};
+              description = "Cross-compiled packages targeting another architecture.";
+            };
+          };
+        });
+
+        # Cross-compiled packages are accessed via
+        # packages.cross.<platform>.<namespace>.<name>
+        cross = lib.types.attrs.of (lib.types.submodule {
+          freeform = lib.types.attrs.of (lib.types.submodule {
+            freeform = lib.types.nullish lib'.types.package.targeted;
+          });
+        });
+      };
 
       builder = lib.types.submodule {
         freeform = lib.types.any;

@@ -2,7 +2,7 @@
   lib,
   config,
 }: let
-  cfg = config.exports.modules;
+  cfg = config.exports;
 
   type = lib.types.one [
     lib.types.path
