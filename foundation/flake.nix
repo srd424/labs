@@ -3,7 +3,9 @@
 
   inputs = {
     lib = {
-      url = "git+file:../?dir=lib";
+#      url = "git+file:../?dir=lib";
+# https://github.com/NixOS/nix/issues/3978
+       url = "git+https://git.auxolotl.org/auxolotl/labs?dir=lib";
     };
   };
 
@@ -15,7 +17,7 @@
     forEachSystem = lib.attrs.generate [
       "i686-linux"
     ];
-  in {
+  in rec {
     extras = let
       result = lib.modules.run {
         modules =
@@ -36,5 +38,10 @@
       in
         result.config.exports.resolved.packages
     );
+
+    hydraJobs = {
+      build = packages;
+    };
+
   };
 }
