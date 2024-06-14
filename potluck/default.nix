@@ -10,22 +10,22 @@
       ++ [
         ./src/export.nix
         {
-          __file__ = "broken";
+          __file__ = ./default.nix;
 
           # options.foundation = lib.options.create {
           #   type = lib.types.attrs.of lib.types.derivation;
           # };
 
           # config.foundation = foundation;
-          config.packages.foundation =
-            builtins.mapAttrs (name: package: {
-              name = package.name;
+          # config.packages.foundation =
+          #   builtins.mapAttrs (name: package: {
+          #     name = package.name;
 
-              inherit package;
+          #     inherit package;
 
-              meta = package.meta;
-            })
-            foundation;
+          #     meta = package.meta;
+          #   })
+          #   foundation;
         }
       ];
   };

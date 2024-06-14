@@ -6,22 +6,55 @@
 
   doubles = lib'.systems.doubles.all;
 
-  generic = builtins.removeAttrs config.packages ["targeted"];
+  generic = config.packages.generic;
+
+  targeted = {
+    i686-linux = generic;
+  };
 in {
   includes = [
     # ./aux/foundation.nix
   ];
 
   options = {
-    packages = lib.options.create {
-      default.value = {};
-      type = lib.types.attrs.of (lib.types.submodule {
-        freeform = lib.types.any;
-      });
+    packages = {
+      generic = lib.options.create {
+        type = lib'.types.packages.generic;
+        default.value = {};
+      };
+
+      targeted = lib.options.create {
+        type = lib'.types.packages.targeted;
+      };
     };
   };
 
   config = {
-    packages.targeted.i686-linux = generic;
+    packages = {
+      generic = {
+        example = {
+          x = {
+            version = "1.0.0";
+            builder.build = package:
+              derivation {
+                name = package.name;
+                builder = "/bin/sh";
+                system = package.platform.build;
+              };
+            phases = {
+              build = ''
+                make
+              '';
+
+              install = lib.dag.entry.after ["build"] ''
+                make install DESTDIR=$out
+              '';
+            };
+          };
+        };
+      };
+
+      inherit targeted;
+    };
   };
 }
