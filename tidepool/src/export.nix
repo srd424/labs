@@ -4,11 +4,16 @@
   lib,
   config,
 }: let
+  lib' = config.lib;
 in {
   config = {
     exports = {
       lib = config.lib;
       modules = import ./modules.nix;
+
+      packages = {
+        example = lib'.packages.export "example.x";
+      };
     };
   };
 }

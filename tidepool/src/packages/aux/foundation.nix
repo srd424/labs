@@ -6,8 +6,6 @@
   lib' = config.lib;
 in {
   config = {
-    exports.packages.example-x = lib'.packages.export "example.x";
-
     packages = {
       generic = {
         example = {
@@ -15,12 +13,7 @@ in {
             meta.platforms = ["i686-linux" "x86_64-linux"];
             version = "1.0.0";
 
-            builder.build = package:
-              derivation {
-                name = package.name;
-                builder = "/bin/sh";
-                system = package.platform.build;
-              };
+            builder = config.builders.basic;
 
             phases = {
               build = package: ''
@@ -30,6 +23,10 @@ in {
               install = lib.dag.entry.after ["build"] ''
                 make install DESTDIR=$out
               '';
+            };
+
+            versions = {
+              "latest" = config.packages.generic.example.x;
             };
           };
         };
