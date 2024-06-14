@@ -6,6 +6,7 @@
 in {
   includes = [
     ./options.nix
+    ./packages.nix
     ./systems.nix
     ./types.nix
   ];

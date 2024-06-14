@@ -53,11 +53,6 @@ in {
 
       meta = lib.types.submodule {
         options = {
-          name = lib.options.create {
-            type = lib.types.string;
-            description = "The name of the package.";
-          };
-
           description = lib.options.create {
             type = lib.types.nullish lib.types.string;
             default.value = null;
@@ -138,7 +133,7 @@ in {
               lib'.types.package.targeted'
               {
                 config = {
-                  namespace = namespace;
+                  namespace = lib.modules.override 99 namespace;
 
                   platform = {
                     build = system;
@@ -164,7 +159,7 @@ in {
                     lib'.types.package.targeted'
                     {
                       config = {
-                        namespace = namespace;
+                        namespace = lib.modules.override 99 namespace;
 
                         platform = {
                           build = system;
@@ -194,6 +189,11 @@ in {
           config,
         }: {
           options = {
+            namespace = lib.options.create {
+              type = lib.types.nullish lib.types.string;
+              default.value = null;
+            };
+
             pname = lib.options.create {
               type = lib.types.string;
               default = {

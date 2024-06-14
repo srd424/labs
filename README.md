@@ -25,7 +25,8 @@ may collaborate.
 
 ## Experiments
 
-| Name                           | Phase     | Description                                                                |
-| ------------------------------ | --------- | -------------------------------------------------------------------------- |
-| [Aux Lib](./lib)               | Iteration | A library of common functions used in the Aux ecosystem.                   |
-| [Aux Foundation](./foundation) | Iteration | Foundational packages which allow for bootstrapping a greater package set. |
+| Name                           | Phase     | Description                                                                          |
+| ------------------------------ | --------- | ------------------------------------------------------------------------------------ |
+| [Aux Lib](./lib)               | Iteration | A library of common functions used in the Aux ecosystem.                             |
+| [Aux Foundation](./foundation) | Iteration | Foundational packages which allow for bootstrapping a greater package set.           |
+| [Aux Tidepool](./tidepool)     | Idea      | An initial package set built on top of Aux Foundation using Aux Lib's module system. |

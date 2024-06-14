@@ -317,6 +317,20 @@ lib: {
       vm = lib.modules.override 10;
     };
 
+    ## Create alias definitions for a given option.
+    ##
+    ## @type Option -> Attrs
+    alias = lib.modules.aliasWith lib.fp.id;
+
+    ## Create alias definitions for a given option.
+    ##
+    ## @type (Attrs -> Attrs) -> Option -> Attrs
+    aliasWith = f: option: let
+      exists = lib.types.is "option" option && option.isDefined;
+      value = f (lib.modules.merge option.definitions);
+    in
+      lib.modules.when exists value;
+
     ## Combine multiple modules together.
     ##
     ## @type List String -> List Module -> { matched :: Attrs, unmatched :: List Definition }
