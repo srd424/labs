@@ -51,6 +51,7 @@ in {
                   config = {
                     platform = {
                       host = lib.modules.overrides.force system;
+                      target = lib.modules.overrides.default system;
                     };
 
                     deps = {

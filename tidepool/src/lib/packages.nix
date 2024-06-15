@@ -34,7 +34,7 @@
             platform = {
               build = system;
               host = cross;
-              target = cross;
+              target = lib.modules.override 150 cross;
             };
 
             deps = {

@@ -169,19 +169,43 @@
             build = lib.options.create {
               description = "The build platform for the package.";
               type = lib.types.string;
-              default.value = "unknown";
+              default.value = "x86_64-linux";
+              apply = raw: let
+                system = lib'.systems.from.string raw;
+              in {
+                inherit raw system;
+
+                double = lib'.systems.into.double system;
+                triple = lib'.systems.into.triple system;
+              };
             };
 
             host = lib.options.create {
               description = "The host platform for the package.";
               type = lib.types.string;
-              default.value = "unknown";
+              default.value = "x86_64-linux";
+              apply = raw: let
+                system = lib'.systems.from.string raw;
+              in {
+                inherit raw system;
+
+                double = lib'.systems.into.double system;
+                triple = lib'.systems.into.triple system;
+              };
             };
 
             target = lib.options.create {
               description = "The target platform for the package.";
               type = lib.types.string;
-              default.value = "unknown";
+              default.value = "x86_64-linux";
+              apply = raw: let
+                system = lib'.systems.from.string raw;
+              in {
+                inherit raw system;
+
+                double = lib'.systems.into.double system;
+                triple = lib'.systems.into.triple system;
+              };
             };
           };
 

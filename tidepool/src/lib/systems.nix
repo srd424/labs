@@ -1460,8 +1460,8 @@ in {
             lib.strings.when
             (kernel.name == "netbsd" && netbsdExec != kernel.exec)
             kernel.exec.name;
-          abi = lib.strings.when (abi != types.abis.unknown) "-${abi.name}";
-        in "${cpu.name}-${vendor.name}-${kernelName}${exec}${abi}";
+          abi' = lib.strings.when (abi != types.abis.unknown) "-${abi.name}";
+        in "${cpu.name}-${vendor.name}-${kernelName}${exec}${abi'}";
       };
 
       create = components:

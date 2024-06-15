@@ -25,7 +25,7 @@ in {
           )
           sorted.result;
 
-        system = package.platform.build;
+        system = package.platform.build.double;
       in
         builtins.derivation (
           package.env

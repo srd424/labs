@@ -24,7 +24,7 @@ in {
 
                 phases = {
                   build = ''
-                    make --build ${config.platform.build} --host ${config.platform.host}
+                    make --build ${config.platform.build.double} --host ${config.platform.host.double}
                   '';
 
                   install = lib.dag.entry.after ["build"] ''
