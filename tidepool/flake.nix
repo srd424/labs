@@ -18,11 +18,10 @@
       lib = inputs.lib.lib;
       foundation = inputs.foundation.packages.i686-linux;
     };
-  in
-    exports;
-
-  hydraJobs = {
-    build = packages;
+  in rec {
+    packages = exports.resolved.packages;
+    hydraJobs = {
+      build = packages;
+    };
   };
-
 }
