@@ -12,7 +12,7 @@ in {
       modules = import ./modules.nix;
 
       packages = {
-        example = lib'.packages.export "example.x";
+        example-x = config.packages.example.x;
       };
     };
   };

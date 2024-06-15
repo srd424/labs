@@ -493,5 +493,113 @@ in {
       };
     in
       evaluated.config.aux.message == evaluated.config.aux.message2;
+
+    "function submodules" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodules.of {
+                  shorthand = false;
+                  modules = [
+                    {
+                      options.message = lib.options.create {
+                        type = lib.types.string;
+                      };
+                    }
+                  ];
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                config.message = expected;
+              };
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.message == expected;
+
+    "merges submodules" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodules.of {
+                  shorthand = false;
+                  modules = [
+                    {
+                      options.message = lib.options.create {
+                        type = lib.types.string;
+                      };
+                    }
+                  ];
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                options.message2 = lib.options.create {
+                  type = lib.types.string;
+                };
+
+                config.message = expected;
+              };
+            };
+          }
+          {
+            config = {
+              aux.config.message2 = expected;
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.message == evaluated.config.aux.message2;
+
+    "flexible shorthand" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodules.of {
+                  shorthand = true;
+                  modules = [
+                    {
+                      options.message = lib.options.create {
+                        type = lib.types.string;
+                      };
+                    }
+                  ];
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                options.message2 = lib.options.create {
+                  type = lib.types.string;
+                };
+
+                config.message = expected;
+              };
+            };
+          }
+          {
+            config = {
+              aux.message2 = expected;
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.message == evaluated.config.aux.message2;
   };
 }

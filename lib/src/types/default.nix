@@ -756,7 +756,7 @@ lib: {
       ## with helpers like `lib.types.attrs.of` in order to produce more complex,
       ## dynamic types.
       ##
-      ## @type { modules :: List Module, args? :: Attrs, description? :: String | Null } -> Attrs
+      ## @type { modules :: List Module, args? :: Attrs, description? :: String | Null, shorthand? :: Bool } -> Attrs
       of = settings @ {
         modules,
         args ? {},
@@ -765,11 +765,24 @@ lib: {
       }: let
         getModules = builtins.map (
           definition:
-            if shorthand && builtins.isAttrs definition
-            then {
-              __file__ = definition.__file__;
-              config = definition.value;
-            }
+            if shorthand && builtins.isAttrs definition.value
+            then let
+              config =
+                definition.value.config
+                or (
+                  builtins.removeAttrs definition.value
+                  (builtins.filter (key: key != "config") lib.modules.VALID_KEYS)
+                );
+              rest =
+                if definition.value ? config
+                then builtins.removeAttrs definition.value ["config"]
+                else lib.attrs.filter (name: value: builtins.elem name lib.modules.VALID_KEYS) definition.value;
+            in
+              rest
+              // {
+                __file__ = definition.__file__;
+                config = config;
+              }
             else {
               __file__ = definition.__file__;
               includes = [definition.value];

@@ -26,11 +26,9 @@ in {
           sorted.result;
 
         system = package.platform.build;
-
-        deps = lib'.packages.dependencies.resolve package.deps system;
       in
-        (builtins.trace script)
-        builtins.derivation (package.env
+        builtins.derivation (
+          package.env
           // {
             inherit (package) name;
             inherit script system;
@@ -40,7 +38,7 @@ in {
             SHELL = cfg.executable;
 
             PATH = lib.paths.bin (
-              (lib'.packages.dependencies.getPackages "build.host" deps)
+              (lib'.packages.dependencies.getPackages package.deps.build.host)
               ++ [
                 foundation.stage2-bash
                 foundation.stage2-coreutils
@@ -67,7 +65,8 @@ in {
                 bash -eux $scriptPath
               '')
             ];
-          });
+          }
+        );
     };
   };
 }

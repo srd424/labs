@@ -1,32 +1,37 @@
 {
   lib,
+  lib',
   config,
   options,
 }: let
-  lib' = config.lib;
+  builders = config.builders;
 in {
   config = {
     packages = {
-      generic = {
-        example = {
-          x = {
-            meta.platforms = ["i686-linux" "x86_64-linux"];
-            version = "1.0.0";
+      example = {
+        x = {
+          versions = {
+            "latest" = {config}: {
+              config = {
+                meta = {
+                  platforms = ["i686-linux" "x86_64-linux"];
+                };
 
-            builder = config.builders.basic;
+                pname = "x";
+                version = "1.0.0";
 
-            phases = {
-              build = package: ''
-                make --build ${package.platform.build} --host ${package.platform.host}
-              '';
+                builder = builders.basic;
 
-              install = lib.dag.entry.after ["build"] ''
-                make install DESTDIR=$out
-              '';
-            };
+                phases = {
+                  build = ''
+                    make --build ${config.platform.build} --host ${config.platform.host}
+                  '';
 
-            versions = {
-              "latest" = config.packages.generic.example.x;
+                  install = lib.dag.entry.after ["build"] ''
+                    make install DESTDIR=$out
+                  '';
+                };
+              };
             };
           };
         };

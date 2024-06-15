@@ -3,12 +3,10 @@
   lib,
 }: let
   lib' = config.lib;
-
-  cfg = config.exports;
 in {
   options = {
     exports.packages = lib.options.create {
-      type = lib.types.attrs.of (lib.types.function (lib.types.nullish lib.types.derivation));
+      type = lib.types.attrs.of (lib'.types.raw);
       default.value = {};
     };
 
@@ -22,17 +20,27 @@ in {
     exported.packages = let
       all = lib.attrs.generate lib'.systems.doubles.all (
         system: let
-          packages =
+          all =
             builtins.mapAttrs
-            (name: resolve: resolve system)
-            cfg.packages;
+            (
+              name: package: let
+                result = lib'.packages.build package system system;
+              in
+                result
+            )
+            config.exports.packages;
 
           available =
             lib.attrs.filter
-            (name: package: package != null)
-            packages;
+            (name: package: builtins.elem system package.meta.platforms)
+            all;
+
+          packages =
+            builtins.mapAttrs
+            (name: package: package.package)
+            available;
         in
-          available
+          packages
       );
 
       available =

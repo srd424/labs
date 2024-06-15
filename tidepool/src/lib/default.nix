@@ -19,4 +19,8 @@ in {
       apply = value: lib.extend (final: prev: prev.attrs.mergeRecursive prev value);
     };
   };
+
+  config = {
+    __module__.args.dynamic.lib' = config.lib;
+  };
 }

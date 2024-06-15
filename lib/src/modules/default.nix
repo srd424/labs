@@ -358,7 +358,7 @@ lib: {
               in
                 if builtins.isAttrs subtree
                 then builtins.mapAttrs (name: f module) subtree
-                else builtins.throw "Value for `${builtins.concatStringsSep "." prefix} is of type `${builtins.typeOf subtree}` but an attribute set was expected."
+                else builtins.throw "Value for `${builtins.concatStringsSep "." prefix}` is of type `${builtins.typeOf subtree}` but an attribute set was expected."
             )
             modules);
 
