@@ -1,40 +1,38 @@
 {
   "nodes": {
     "foundation": {
-      "inputs": {
-        "lib": [
-          "lib"
-        ]
-      },
       "locked": {
-        "dir": "foundation",
-        "dirtyRev": "6bd35bf4d5f24b8e91d8afa589ea3088796b2baa-dirty",
-        "dirtyShortRev": "6bd35bf-dirty",
-        "lastModified": 1718450285,
-        "narHash": "sha256-/i3RlOudzZdl6UBdhMDRBAgVQTHOZDXEkSfRUw77aK8=",
+        "dir": "lib",
+        "lastModified": 1718465838,
+        "narHash": "sha256-kF09tnlY1jOHQlbfjSJ7toC4mbQ/hGifiSuIm/Nu3Qw=",
+        "ref": "sd-main-2",
+        "rev": "d16a63cbb402f2263cf5b0f1973782db462e7531",
+        "revCount": 57,
         "type": "git",
-        "url": "file:../?dir=foundation"
+        "url": "http://github.com/srd424/labs?dir=lib"
       },
       "original": {
-        "dir": "foundation",
+        "dir": "lib",
+        "ref": "sd-main-2",
         "type": "git",
-        "url": "file:../?dir=foundation"
+        "url": "http://github.com/srd424/labs?dir=lib"
       }
     },
     "lib": {
       "locked": {
         "dir": "lib",
-        "dirtyRev": "6bd35bf4d5f24b8e91d8afa589ea3088796b2baa-dirty",
-        "dirtyShortRev": "6bd35bf-dirty",
-        "lastModified": 1718450285,
-        "narHash": "sha256-/i3RlOudzZdl6UBdhMDRBAgVQTHOZDXEkSfRUw77aK8=",
+        "lastModified": 1718460525,
+        "narHash": "sha256-znU+Bi9Z4UjyfaeZtLzvvmxVLaeV1b2a3vtSbBI1shA=",
+        "ref": "refs/heads/main",
+        "rev": "0312e3c4cc261e2384fcf372c766a0cf245f3213",
+        "revCount": 55,
         "type": "git",
-        "url": "file:../?dir=lib"
+        "url": "https://git.auxolotl.org/auxolotl/labs?dir=lib"
       },
       "original": {
         "dir": "lib",
         "type": "git",
-        "url": "file:../?dir=lib"
+        "url": "https://git.auxolotl.org/auxolotl/labs?dir=lib"
       }
     },
     "root": {
