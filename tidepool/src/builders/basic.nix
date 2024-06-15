@@ -37,13 +37,16 @@ in {
 
             SHELL = cfg.executable;
 
-            PATH = lib.paths.bin (
-              (lib'.packages.dependencies.getPackages package.deps.build.host)
-              ++ [
-                foundation.stage2-bash
-                foundation.stage2-coreutils
-              ]
-            );
+            PATH = let
+              bins = lib.paths.bin (
+                (lib'.packages.dependencies.getPackages package.deps.build.host)
+                ++ [
+                  foundation.stage2-bash
+                  foundation.stage2-coreutils
+                ]
+              );
+            in
+              builtins.concatStringsSep ":" ([bins] ++ (lib.lists.when (package.env ? PATH) [package.env.PATH]));
 
             builder = cfg.executable;
 

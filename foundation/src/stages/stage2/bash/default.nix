@@ -76,6 +76,7 @@ in {
         deps.build.host = [
           stage1.gcc.package
           stage1.musl.package
+          stage1.coreutils.package
           stage1.binutils.package
           stage1.gnumake.package
           stage1.gnupatch.package
@@ -110,6 +111,7 @@ in {
           make -j $NIX_BUILD_CORES install-strip
           rm $out/bin/bashbug
 
+          ln -s $out/bin/bash $out/bin/sh
         '';
       };
     };

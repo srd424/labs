@@ -58,6 +58,10 @@ lib: {
         else sorted;
     };
 
+    apply = {
+      # defaults = graph: defaults:
+    };
+
     ## Map over the entries in a DAG and modify their values.
     ##
     ## @type (String -> a -> b) -> Dag a -> Dag b

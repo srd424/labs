@@ -8,7 +8,7 @@
   packages = builtins.removeAttrs config.packages ["cross"];
 in {
   includes = [
-    ./aux/foundation.nix
+    ./foundation
   ];
 
   options = {
@@ -37,7 +37,7 @@ in {
     };
   };
 
-  config.packages.cross = lib.attrs.generate doubles (
+  config.packages.config.cross = lib.attrs.generate doubles (
     system:
       builtins.mapAttrs
       (

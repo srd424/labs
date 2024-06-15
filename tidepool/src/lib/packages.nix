@@ -17,14 +17,14 @@
 
       getLatest = alias: let
         versions = builtins.attrNames alias.versions;
-        sorted = builtins.sort (builtins.compareVersions) versions;
+        sorted = builtins.sort (lib.versions.gte) versions;
       in
         builtins.head sorted;
 
       build = package: system: cross: let
         resolved =
           if package ? versions
-          then package.versions.${config.preferences.packages.version} or (lib'.packages.getLatest package)
+          then package.versions.${config.preferences.packages.version} or (package.versions.${lib'.packages.getLatest package})
           else package;
 
         buildDependencies = builtins.mapAttrs (name: dep: lib'.packages.build dep system cross);

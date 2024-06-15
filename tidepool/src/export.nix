@@ -12,8 +12,9 @@ in {
       modules = import ./modules.nix;
 
       packages = {
-        example-x = config.packages.example.x;
-        cross-example-x-x86_64-linux = config.packages.cross.x86_64-linux.example.x;
+        foundation-gcc = config.packages.foundation.gcc;
+        # example-x = config.packages.example.x;
+        # cross-example-x-x86_64-linux = config.packages.cross.x86_64-linux.example.x;
       };
     };
   };
