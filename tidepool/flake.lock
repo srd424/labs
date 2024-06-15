@@ -1,21 +1,26 @@
 {
   "nodes": {
     "foundation": {
+      "inputs": {
+        "lib": [
+          "lib"
+        ]
+      },
       "locked": {
-        "dir": "lib",
-        "lastModified": 1718465838,
-        "narHash": "sha256-kF09tnlY1jOHQlbfjSJ7toC4mbQ/hGifiSuIm/Nu3Qw=",
+        "dir": "foundation",
+        "lastModified": 1718481122,
+        "narHash": "sha256-X1KT9VOj4sT9cXyYtv2wSzFBm/c1NUEkrm1TCOwViqI=",
         "ref": "sd-main-2",
-        "rev": "d16a63cbb402f2263cf5b0f1973782db462e7531",
-        "revCount": 57,
+        "rev": "92edbd499e7d7a93572dcde8a6cf7712944cae31",
+        "revCount": 59,
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=lib"
+        "url": "http://github.com/srd424/labs?dir=foundation"
       },
       "original": {
-        "dir": "lib",
+        "dir": "foundation",
         "ref": "sd-main-2",
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=lib"
+        "url": "http://github.com/srd424/labs?dir=foundation"
       }
     },
     "lib": {

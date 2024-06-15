@@ -8,7 +8,7 @@
     };
     foundation = {
 #      url = "git+file:../?dir=foundation";
-      url = "git+https://github.com/srd424/labs&ref=sd-main-2?dir=lib";
+      url = "git+http://github.com/srd424/labs?ref=sd-main-2&dir=foundation";
       inputs.lib.follows = "lib";
     };
   };
