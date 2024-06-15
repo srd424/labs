@@ -20,4 +20,9 @@
     };
   in
     exports;
+
+  hydraJobs = {
+    build = packages;
+  };
+
 }
