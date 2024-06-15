@@ -19,7 +19,7 @@
       foundation = inputs.foundation.packages.i686-linux;
     };
   in rec {
-    packages = exports.resolved.packages;
+    packages = exports.packages;
     hydraJobs = {
       build = packages;
     };
