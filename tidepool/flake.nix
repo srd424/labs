@@ -1,10 +1,14 @@
 {
   inputs = {
     lib = {
-      url = "git+file:../?dir=lib";
+#      url = "git+file:../?dir=lib";
+# https://github.com/NixOS/nix/issues/3978
+       url = "git+https://git.auxolotl.org/auxolotl/labs?dir=lib";
+
     };
     foundation = {
-      url = "git+file:../?dir=foundation";
+#      url = "git+file:../?dir=foundation";
+      url = "git+https://github.com/srd424/labs&ref=sd-main-2?dir=lib";
       inputs.lib.follows = "lib";
     };
   };
