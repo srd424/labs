@@ -94,7 +94,7 @@ lib: {
           typeSet = lib.attrs.when ((shared "type") && isTypeMergeable) {
             type = mergedType;
           };
-          files = builtins.map lib.modules.getFiles result.declarations;
+          files = result.declarations;
           serializedFiles = builtins.concatStringsSep " and " files;
           getSubModules = option.options.type.getSubModules or null;
           submodules =

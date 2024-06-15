@@ -1,10 +1,11 @@
 {
   lib,
+  lib',
   config,
 }: let
-  lib' = config.lib;
-
   doubles = lib'.systems.doubles.all;
+
+  packages = builtins.removeAttrs config.packages ["cross"];
 in {
   includes = [
     ./aux/foundation.nix
@@ -13,7 +14,18 @@ in {
   options = {
     packages = lib.options.create {
       description = "The package set.";
-      type = lib'.types.packages;
+      type = lib.types.submodule {
+        freeform = lib.modules.overrides.force (lib.types.attrs.of (lib.types.submodule {
+          freeform = lib.modules.overrides.force lib'.types.alias;
+        }));
+
+        options.cross = lib.attrs.generate doubles (system:
+          lib.options.create {
+            description = "The cross-compiled package set for the ${system} target.";
+            type = lib'.types.packages;
+            default = {};
+          });
+      };
     };
 
     preferences.packages = {
@@ -24,4 +36,55 @@ in {
       };
     };
   };
+
+  config.packages.cross = lib.attrs.generate doubles (
+    system:
+      builtins.mapAttrs
+      (
+        namespace:
+          builtins.mapAttrs
+          (name: alias: let
+            setHost = package:
+              if package != {}
+              then
+                package.extend ({config}: {
+                  config = {
+                    platform = {
+                      host = lib.modules.overrides.force system;
+                    };
+
+                    deps = {
+                      build = {
+                        only = setHost package.deps.build.only;
+                        build = setHost package.deps.build.build;
+                        host = setHost package.deps.build.host;
+                        target = setHost package.deps.build.target;
+                      };
+                      host = {
+                        only = setHost package.deps.host.only;
+                        host = setHost package.deps.host.host;
+                        target = setHost package.deps.host.target;
+                      };
+                      target = {
+                        only = setHost package.deps.target.only;
+                        target = setHost package.deps.target.target;
+                      };
+                    };
+                  };
+                })
+              else package;
+
+            updated =
+              alias
+              // {
+                versions =
+                  builtins.mapAttrs
+                  (version: package: setHost package)
+                  alias.versions;
+              };
+          in
+            updated)
+      )
+      packages
+  );
 }

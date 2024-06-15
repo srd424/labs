@@ -767,19 +767,21 @@ lib: {
           definition:
             if shorthand && builtins.isAttrs definition.value
             then let
-              config =
-                definition.value.config
-                or (
-                  builtins.removeAttrs definition.value
-                  (builtins.filter (key: key != "config") lib.modules.VALID_KEYS)
-                );
+              # TODO: Figure out if we can apply additional attributes to the generated module.
+              # Currently this causes issues to do with redefined options.
               rest =
-                if definition.value ? config
-                then builtins.removeAttrs definition.value ["config"]
-                else lib.attrs.filter (name: value: builtins.elem name lib.modules.VALID_KEYS) definition.value;
+                builtins.removeAttrs
+                (lib.attrs.filter (name: value: builtins.elem name lib.modules.VALID_KEYS) definition.value)
+                ["freeform"];
             in
-              rest
-              // {
+              if definition.value ? config
+              then {
+                __file__ = definition.__file__;
+                config = definition.value.config;
+              }
+              else let
+                config = builtins.removeAttrs definition.value lib.modules.VALID_KEYS;
+              in {
                 __file__ = definition.__file__;
                 config = config;
               }
