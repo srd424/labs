@@ -3,18 +3,18 @@
     "lib": {
       "locked": {
         "dir": "lib",
-        "lastModified": 1718109789,
-        "narHash": "sha256-YMAa0CgoXmGLtfKd2obYO6FTNbHP5Ia//4up5VJ4Bqs=",
+        "lastModified": 1718460525,
+        "narHash": "sha256-znU+Bi9Z4UjyfaeZtLzvvmxVLaeV1b2a3vtSbBI1shA=",
         "ref": "refs/heads/main",
-        "rev": "25bf71bbe47878fa9d2ef3c94f528e630a1795b6",
-        "revCount": 47,
+        "rev": "0312e3c4cc261e2384fcf372c766a0cf245f3213",
+        "revCount": 55,
         "type": "git",
-        "url": "https://github.com/srd424/labs?dir=lib"
+        "url": "https://git.auxolotl.org/auxolotl/labs?dir=lib"
       },
       "original": {
         "dir": "lib",
         "type": "git",
-        "url": "https://github.com/srd424/labs?dir=lib"
+        "url": "https://git.auxolotl.org/auxolotl/labs?dir=lib"
       }
     },
     "root": {
