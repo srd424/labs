@@ -8,19 +8,19 @@
       },
       "locked": {
         "dir": "foundation",
-        "lastModified": 1718481122,
-        "narHash": "sha256-X1KT9VOj4sT9cXyYtv2wSzFBm/c1NUEkrm1TCOwViqI=",
+        "lastModified": 1718482962,
+        "narHash": "sha256-K01Bnhxhcv7ZkBAohyBSODdkb17mdc9HCejPdukHZ1w=",
         "ref": "sd-main-2",
-        "rev": "92edbd499e7d7a93572dcde8a6cf7712944cae31",
-        "revCount": 59,
+        "rev": "6df0a973317af75c005f4ebfb6313a70faa7875a",
+        "revCount": 63,
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=foundation"
+        "url": "https://github.com/srd424/labs?dir=foundation"
       },
       "original": {
         "dir": "foundation",
         "ref": "sd-main-2",
         "type": "git",
-        "url": "http://github.com/srd424/labs?dir=foundation"
+        "url": "https://github.com/srd424/labs?dir=foundation"
       }
     },
     "lib": {
