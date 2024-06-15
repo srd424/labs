@@ -761,10 +761,11 @@ lib: {
         modules,
         args ? {},
         description ? null,
+        shorthand ? true,
       }: let
         getModules = builtins.map (
           definition:
-            if builtins.isAttrs definition
+            if shorthand && builtins.isAttrs definition
             then {
               __file__ = definition.__file__;
               config = definition.value;
@@ -816,7 +817,7 @@ lib: {
           getSubModules = modules;
           withSubModules = modules:
             lib.types.submodules.of {
-              inherit args description modules;
+              inherit args description modules shorthand;
             };
           children = lib.attrs.when (freeform != null) {
             inherit freeform;
@@ -826,7 +827,7 @@ lib: {
             // {
               type = lib.types.submodules.of;
               payload = {
-                inherit modules args description;
+                inherit modules args description shorthand;
               };
               merge = x: y: {
                 modules = x.modules ++ y.modules;

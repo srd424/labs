@@ -454,5 +454,44 @@ in {
       };
     in
       evaluated.config.aux.x.message == expected;
+
+    "submodules without shorthand" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodules.of {
+                  shorthand = false;
+                  modules = [
+                    {
+                      options.message = lib.options.create {
+                        type = lib.types.string;
+                      };
+                    }
+                  ];
+                };
+              };
+            };
+            config = {
+              aux = {
+                options = {
+                  message2 = lib.options.create {
+                    type = lib.types.string;
+                  };
+                };
+
+                config = {
+                  message = expected;
+                  message2 = expected;
+                };
+              };
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.message == evaluated.config.aux.message2;
   };
 }
