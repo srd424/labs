@@ -82,6 +82,13 @@
           extend = lib.options.create {
             description = "Extend the package's submodules with additional configuration.";
             type = lib.types.function lib.types.raw;
+            default.value = value:
+              meta.extend {
+                modules =
+                  if builtins.isAttrs value
+                  then [{config = value;}]
+                  else lib.lists.from.any value;
+              };
           };
 
           name = lib.options.create {
@@ -290,16 +297,6 @@
             type = lib.types.derivation;
             default.value = config.builder.build config;
           };
-        };
-
-        config = {
-          extend = value:
-            meta.extend {
-              modules =
-                if builtins.isAttrs value
-                then [{config = value;}]
-                else lib.lists.from.any value;
-            };
         };
       });
     };

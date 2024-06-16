@@ -601,5 +601,115 @@ in {
       };
     in
       evaluated.config.aux.message == evaluated.config.aux.message2;
+
+    "base level submodule" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodule {
+                  options.message = lib.options.create {
+                    type = lib.types.string;
+                  };
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                options.message2 = lib.options.create {
+                  type = lib.types.string;
+                };
+
+                config.message = expected;
+              };
+            };
+          }
+          {
+            config = {
+              aux.message2 = expected;
+            };
+          }
+        ];
+      };
+    in
+      evaluated.config.aux.message == evaluated.config.aux.message2;
+
+    "base level submodule (freeform)" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodule {
+                  freeform = lib.types.any;
+
+                  options.message = lib.options.create {
+                    type = lib.types.string;
+                  };
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                options.message2 = lib.options.create {
+                  type = lib.types.string;
+                };
+
+                config.message = expected;
+              };
+            };
+          }
+          {
+            config = {
+              aux.exists = true;
+              aux.message2 = expected;
+            };
+          }
+        ];
+      };
+    in
+      (evaluated.config.aux.message == evaluated.config.aux.message2)
+      && evaluated.config.aux.exists;
+
+    "nested submodules" = let
+      expected = "Hello, World!";
+      evaluated = lib.modules.run {
+        modules = [
+          {
+            options = {
+              aux = lib.options.create {
+                type = lib.types.submodule {
+                  freeform = lib.types.any;
+
+                  options.message = lib.options.create {
+                    type = lib.types.string;
+                  };
+                };
+              };
+            };
+            config = {
+              aux = args: {
+                options.message2 = lib.options.create {
+                  type = lib.types.string;
+                };
+
+                config.message = expected;
+              };
+            };
+          }
+          {
+            config = {
+              aux.exists = true;
+              aux.message2 = expected;
+            };
+          }
+        ];
+      };
+    in
+      (evaluated.config.aux.message == evaluated.config.aux.message2)
+      && evaluated.config.aux.exists;
   };
 }

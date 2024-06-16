@@ -775,16 +775,20 @@ lib: {
                 ["freeform"];
             in
               if definition.value ? config
-              then {
-                __file__ = definition.__file__;
-                config = definition.value.config;
-              }
+              then
+                rest
+                // {
+                  __file__ = definition.__file__;
+                  config = definition.value.config;
+                }
               else let
                 config = builtins.removeAttrs definition.value lib.modules.VALID_KEYS;
-              in {
-                __file__ = definition.__file__;
-                config = config;
-              }
+              in
+                rest
+                // {
+                  __file__ = definition.__file__;
+                  config = config;
+                }
             else {
               __file__ = definition.__file__;
               includes = [definition.value];

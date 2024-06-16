@@ -15,9 +15,9 @@ in {
     packages = lib.options.create {
       description = "The package set.";
       type = lib.types.submodule {
-        freeform = lib.modules.overrides.force (lib.types.attrs.of (lib.types.submodule {
-          freeform = lib.modules.overrides.force lib'.types.alias;
-        }));
+        freeform = lib.types.attrs.of (lib.types.submodule {
+          freeform = lib'.types.alias;
+        });
 
         options.cross = lib.attrs.generate doubles (system:
           lib.options.create {
@@ -37,7 +37,7 @@ in {
     };
   };
 
-  config.packages.config.cross = lib.attrs.generate doubles (
+  config.packages.cross = lib.attrs.generate doubles (
     system:
       builtins.mapAttrs
       (
@@ -47,7 +47,7 @@ in {
             setHost = package:
               if package != {}
               then
-                package.extend ({config}: {
+                (package.extend ({config}: {
                   config = {
                     platform = {
                       host = lib.modules.overrides.force system;
@@ -72,7 +72,8 @@ in {
                       };
                     };
                   };
-                })
+                }))
+                .config
               else package;
 
             updated =

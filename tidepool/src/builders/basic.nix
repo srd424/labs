@@ -26,8 +26,8 @@ in {
           sorted.result;
 
         system = package.platform.build.double;
-      in
-        builtins.derivation (
+
+        built = builtins.derivation (
           package.env
           // {
             inherit (package) name;
@@ -70,6 +70,11 @@ in {
             ];
           }
         );
+      in
+        built
+        // {
+          inherit (package) meta;
+        };
     };
   };
 }

@@ -22,3 +22,6 @@
   };
 in
   result.config.exported
+  // {
+    inherit (result) config;
+  }

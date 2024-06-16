@@ -1909,27 +1909,25 @@ in {
           then {system = args;}
           else args;
 
-        matchers = builtins.mapAttrs (name: match: match resolved.system) lib'.systems.match;
-        validators = builtins.mapAttrs (name: validate: validate (resolved.gcc.arch or "default")) lib'.systems.match.architecture;
-
-        platformInfo =
-          {
-            linux-kernel = settings.linux-kernel or {};
-            gcc = settings.gcc or {};
-            rustc = settings.rustc or {};
-          }
-          // lib'.systems.platforms.select resolved;
-
         resolved =
-          matchers
-          // validators
-          // platformInfo
-          // {
+          {
             system = lib'.systems.from.string (
               if settings ? triple
               then settings.triple
               else settings.system
             );
+
+            inherit
+              ({
+                  linux-kernel = settings.linux-kernel or {};
+                  gcc = settings.gcc or {};
+                  rustc = settings.rustc or {};
+                }
+                // lib'.systems.platforms.select resolved)
+              linux-kernel
+              gcc
+              rust
+              ;
 
             double = lib'.systems.into.double resolved.system;
             triple = lib'.systems.into.triple resolved.system;
@@ -2162,6 +2160,8 @@ in {
               };
             };
           }
+          // builtins.mapAttrs (name: match: match resolved.system) lib'.systems.match
+          // builtins.mapAttrs (name: validate: validate (resolved.gcc.arch or "default")) lib'.systems.validate.architecture
           // settings;
 
         assertions =
@@ -2178,7 +2178,7 @@ in {
           true
           (resolved.system.abi.assertions or []);
       in
-        assert resolved.useAndroidPrebuild -> resolved.isAndroid;
+        assert resolved.useAndroidPrebuilt -> resolved.isAndroid;
         assert assertions;
         # And finally, return the generated system info.
           resolved;
