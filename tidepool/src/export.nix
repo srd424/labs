@@ -24,6 +24,10 @@ in {
         # }))
         # .config;
         foundation-gcc = config.packages.foundation.gcc;
+        foundation-binutils = config.packages.foundation.binutils;
+        foundation-linux-headers = config.packages.foundation.linux-headers.versions.latest.extend {
+          platform.host = lib.modules.overrides.force "x86_64-linux";
+        };
         # example-x = config.packages.example.x;
         # cross-example-x-x86_64-linux = config.packages.cross.x86_64-linux.example.x;
       };

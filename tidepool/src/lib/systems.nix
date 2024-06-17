@@ -14,7 +14,13 @@
 
   matchAnyAttrs = patterns:
     if builtins.isList patterns
-    then value: builtins.any (pattern: lib.attrs.match pattern value) patterns
+    then
+      value:
+        builtins.any (pattern:
+          if builtins.isFunction pattern
+          then pattern value
+          else matchAnyAttrs pattern value)
+        patterns
     else lib.attrs.match patterns;
 
   getDoubles = predicate:
@@ -1586,8 +1592,8 @@ in {
         };
         isArmv7 =
           map ({arch, ...}: {cpu = {inherit arch;};})
-          (lib.filter (cpu: lib.hasPrefix "armv7" cpu.arch or "")
-            (lib.attrValues types.cpus));
+          (builtins.filter (cpu: lib.strings.hasPrefix "armv7" cpu.arch or "")
+            (builtins.attrValues types.cpus));
         isAarch64 = {
           cpu = {
             family = "arm";
@@ -1926,7 +1932,7 @@ in {
                 // lib'.systems.platforms.select resolved)
               linux-kernel
               gcc
-              rust
+              rustc
               ;
 
             double = lib'.systems.into.double resolved.system;
@@ -2162,7 +2168,7 @@ in {
           }
           // builtins.mapAttrs (name: match: match resolved.system) lib'.systems.match
           // builtins.mapAttrs (name: validate: validate (resolved.gcc.arch or "default")) lib'.systems.validate.architecture
-          // settings;
+          // (builtins.removeAttrs settings ["system"]);
 
         assertions =
           builtins.foldl'

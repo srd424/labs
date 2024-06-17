@@ -24,7 +24,7 @@ in {
             builtins.mapAttrs
             (
               name: package: let
-                result = lib'.packages.build package system system;
+                result = lib'.packages.build package system system system;
               in
                 result
             )

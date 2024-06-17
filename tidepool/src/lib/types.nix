@@ -82,13 +82,15 @@
           extend = lib.options.create {
             description = "Extend the package's submodules with additional configuration.";
             type = lib.types.function lib.types.raw;
-            default.value = value:
-              meta.extend {
+            default.value = value: let
+              result = meta.extend {
                 modules =
                   if builtins.isAttrs value
                   then [{config = value;}]
                   else lib.lists.from.any value;
               };
+            in
+              result.config;
           };
 
           name = lib.options.create {
@@ -172,40 +174,47 @@
               default.value = "x86_64-linux";
               apply = raw: let
                 system = lib'.systems.from.string raw;
-              in {
-                inherit raw system;
-
-                double = lib'.systems.into.double system;
-                triple = lib'.systems.into.triple system;
-              };
+                x = lib'.systems.withBuildInfo raw;
+              in
+                x;
             };
 
             host = lib.options.create {
               description = "The host platform for the package.";
               type = lib.types.string;
               default.value = "x86_64-linux";
+              # apply = raw: let
+              #   system = lib'.systems.from.string raw;
+              # in {
+              #   inherit raw system;
+
+              #   double = lib'.systems.into.double system;
+              #   triple = lib'.systems.into.triple system;
+              # };
               apply = raw: let
                 system = lib'.systems.from.string raw;
-              in {
-                inherit raw system;
-
-                double = lib'.systems.into.double system;
-                triple = lib'.systems.into.triple system;
-              };
+                x = lib'.systems.withBuildInfo raw;
+              in
+                x;
             };
 
             target = lib.options.create {
               description = "The target platform for the package.";
               type = lib.types.string;
               default.value = "x86_64-linux";
+              # apply = raw: let
+              #   system = lib'.systems.from.string raw;
+              # in {
+              #   inherit raw system;
+
+              #   double = lib'.systems.into.double system;
+              #   triple = lib'.systems.into.triple system;
+              # };
               apply = raw: let
                 system = lib'.systems.from.string raw;
-              in {
-                inherit raw system;
-
-                double = lib'.systems.into.double system;
-                triple = lib'.systems.into.triple system;
-              };
+                x = lib'.systems.withBuildInfo raw;
+              in
+                x;
             };
           };
 

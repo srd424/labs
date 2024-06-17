@@ -6,6 +6,8 @@
 }: {
   includes = [
     ./gcc
+    ./binutils
+    ./linux-headers
   ];
 
   config = {

@@ -15,7 +15,7 @@
 in {
   config.packages.foundation.gcc = {
     versions = {
-      "13.2.0" = {
+      "latest" = {
         config,
         meta,
       }: {
@@ -98,9 +98,12 @@ in {
                 then foundation.stage2-gcc
                 # Otherwise we are going to need a cross-compiler.
                 else
+                  # TODO: Create a gcc-cross package.
                   (meta.extend (args: {
                     config = {
                       platform = {
+                        build = config.platform.build.triple;
+                        host = config.platform.build.triple;
                         target = lib.modules.override.force config.platform.host.triple;
                       };
                     };
@@ -126,6 +129,14 @@ in {
 
           phases = let
             host = lib'.systems.withBuildInfo config.platform.host;
+
+            mbits =
+              if host.system.cpu.family == "x86"
+              then
+                if host.is64bit
+                then "-m64"
+                else "-m32"
+              else "";
           in {
             unpack = lib.dag.entry.before ["patch"] ''
               # Unpack
@@ -150,7 +161,7 @@ in {
 
             configure = lib.dag.entry.between ["build"] ["patch"] ''
               # Configure
-              export CC="gcc -Wl,-dynamic-linker -march=${host.gcc.arch or host.system.cpu.arch} -Wl,${foundation.stage1-musl}/lib/libc.so"
+              export CC="gcc -Wl,-dynamic-linker -march=${host.gcc.arch or host.system.cpu.family} ${mbits} -Wl,${foundation.stage1-musl}/lib/libc.so"
               export CXX="g++ -Wl,-dynamic-linker -Wl,${foundation.stage1-musl}/lib/libc.so"
               export CFLAGS_FOR_TARGET="-Wl,-dynamic-linker -Wl,${foundation.stage1-musl}/lib/libc.so"
               export LIBRARY_PATH="${foundation.stage1-musl}/lib"

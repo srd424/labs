@@ -21,37 +21,37 @@
       in
         builtins.head sorted;
 
-      build = package: system: cross: let
+      build = package: build: host: target: let
         resolved =
           if package ? versions
           then package.versions.${config.preferences.packages.version} or (package.versions.${lib'.packages.getLatest package})
           else package;
 
-        buildDependencies = builtins.mapAttrs (name: dep: lib'.packages.build dep system cross);
+        buildDependencies = build': host': target': builtins.mapAttrs (name: dep: lib'.packages.build dep build' host' target');
 
         result = resolved.extend ({config}: {
           config = {
             platform = {
-              build = system;
-              host = cross;
-              target = lib.modules.override 150 cross;
+              build = build;
+              host = host;
+              target = lib.modules.override 150 target;
             };
 
             deps = {
               build = {
-                only = buildDependencies resolved.deps.build.only;
-                build = buildDependencies resolved.deps.build.build;
-                host = buildDependencies resolved.deps.build.host;
-                target = buildDependencies resolved.deps.build.target;
+                only = buildDependencies build build build resolved.deps.build.only;
+                build = buildDependencies build build target resolved.deps.build.build;
+                host = buildDependencies build host target resolved.deps.build.host;
+                target = buildDependencies build target target resolved.deps.build.target;
               };
               host = {
-                only = buildDependencies resolved.deps.host.only;
-                host = buildDependencies resolved.deps.host.host;
-                target = buildDependencies resolved.deps.host.target;
+                only = buildDependencies host host host resolved.deps.host.only;
+                host = buildDependencies host host target resolved.deps.host.host;
+                target = buildDependencies host target target resolved.deps.host.target;
               };
               target = {
-                only = buildDependencies resolved.deps.target.only;
-                target = buildDependencies resolved.deps.target.target;
+                only = buildDependencies target target target resolved.deps.target.only;
+                target = buildDependencies target target target resolved.deps.target.target;
               };
             };
 
@@ -59,7 +59,7 @@
           };
         });
       in
-        result.config;
+        result;
     };
   };
 }
