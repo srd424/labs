@@ -86,9 +86,9 @@ in {
 
       hash = lib.modules.overrides.default (
         if system == "x86_64-linux"
-        then "sha256-XTPsoKeI6wTZAF0UwEJPzuHelWOJe//wXg4HYO0dEJo="
-        else if system == "aarch64-linux"
         then "sha256-RCgK9oZRDQUiWLVkcIBSR2HeoB+Bh0czthrpjFEkCaY="
+        else if system == "aarch64-linux"
+        then "sha256-XTPsoKeI6wTZAF0UwEJPzuHelWOJe//wXg4HYO0dEJo="
         else if system == "i686-linux"
         then "sha256-QU3RPGy51W7M2xnfFY1IqruKzusrSLU+L190ztN6JW8="
         else null
