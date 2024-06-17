@@ -59,7 +59,34 @@ lib: {
     };
 
     apply = {
-      # defaults = graph: defaults:
+      ## Apply a set of defaults to a graph. This will ensure that missing entries are added
+      ## and any entries that do exist are given the appropriate `before` and `after` values.
+      ##
+      ## @type Dag a -> Dag a -> Dag a
+      defaults = graph: defaults: let
+        result =
+          builtins.mapAttrs
+          (
+            name: entry:
+              if defaults ? ${name}
+              then
+                if builtins.isString entry
+                then {
+                  value = entry;
+                  before = defaults.${name}.before or [];
+                  after = defaults.${name}.after or [];
+                }
+                else
+                  entry
+                  // {
+                    before = (entry.before or []) ++ (defaults.${name}.before or []);
+                    after = (entry.after or []) ++ (defaults.${name}.after or []);
+                  }
+              else entry
+          )
+          graph;
+      in
+        defaults // result;
     };
 
     ## Map over the entries in a DAG and modify their values.
