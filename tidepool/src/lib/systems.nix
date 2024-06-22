@@ -2103,7 +2103,7 @@ in {
               then "x86" # not i386
               else if resolved.isMips64
               then "mips64" # uboot *does* distinguish between mips32/mips64
-              else resolved.linuxArch; # other cases appear to agree with linuxArch
+              else resolved.linux.arch # other cases appear to agree with linuxArch
 
             qemu.arch =
               if resolved.isAarch32

@@ -820,6 +820,7 @@ lib: {
           check = value: builtins.isAttrs value || builtins.isFunction value || lib.types.path.check value;
           merge = location: definitions: let
             result = base.extend {
+              prefix = location;
               modules =
                 [{config.__module__.args.dynamic.name = lib.lists.last location;}]
                 ++ getModules definitions;
