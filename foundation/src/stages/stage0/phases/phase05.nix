@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.cc_arch;
   hex0 = config.aux.foundation.stages.stage0.hex0;
   hex2-0 = config.aux.foundation.stages.stage0.hex2-0;
@@ -12,7 +10,8 @@
   builders = config.aux.foundation.builders;
   sources = config.aux.foundation.stages.stage0.sources;
   architecture = config.aux.foundation.stages.stage0.architecture;
-in {
+in
+{
   options.aux.foundation.stages.stage0.cc_arch = {
     meta = {
       description = lib.options.create {
@@ -37,7 +36,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -49,47 +48,51 @@ in {
 
   config = {
     aux.foundation.stages.stage0.cc_arch = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "cc_arch";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "cc_arch";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable = hex2-0.package;
+          executable = hex2-0.package;
 
-        args = let
-          cc_arch0_hex2-0 = builders.raw.build {
-            pname = "cc_arch0_hex2-0";
-            version = "1.6.0";
+          args =
+            let
+              cc_arch0_hex2-0 = builders.raw.build {
+                pname = "cc_arch0_hex2-0";
+                version = "1.6.0";
 
-            meta = cfg.meta;
+                meta = cfg.meta;
 
-            executable = M0.package;
+                executable = M0.package;
 
-            args = [
-              "${sources.base}/cc_${architecture.m2libc}.M1"
+                args = [
+                  "${sources.base}/cc_${architecture.m2libc}.M1"
+                  (builtins.placeholder "out")
+                ];
+              };
+              cc_arch1_hex2-0 = builders.raw.build {
+                pname = "cc_arch1_hex2-0";
+                version = "1.6.0";
+
+                meta = cfg.meta;
+
+                executable = catm.package;
+
+                args = [
+                  (builtins.placeholder "out")
+                  "${sources.m2libc}/${architecture.m2libc}/ELF-${architecture.m2libc}.hex2"
+                  cc_arch0_hex2-0
+                ];
+              };
+            in
+            [
+              cc_arch1_hex2-0
               (builtins.placeholder "out")
             ];
-          };
-          cc_arch1_hex2-0 = builders.raw.build {
-            pname = "cc_arch1_hex2-0";
-            version = "1.6.0";
-
-            meta = cfg.meta;
-
-            executable = catm.package;
-
-            args = [
-              (builtins.placeholder "out")
-              "${sources.m2libc}/${architecture.m2libc}/ELF-${architecture.m2libc}.hex2"
-              cc_arch0_hex2-0
-            ];
-          };
-        in [
-          cc_arch1_hex2-0
-          (builtins.placeholder "out")
-        ];
-      });
+        }
+      );
     };
   };
 }

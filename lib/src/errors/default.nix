@@ -5,9 +5,6 @@ lib: {
     ##
     ## @notest
     ## @type Bool -> String -> Bool
-    trace = condition: message:
-      if condition
-      then true
-      else builtins.trace message false;
+    trace = condition: message: if condition then true else builtins.trace message false;
   };
 }

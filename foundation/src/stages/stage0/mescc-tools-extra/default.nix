@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.mescc-tools-extra;
   hex0 = config.aux.foundation.stages.stage0.hex0;
   catm = config.aux.foundation.stages.stage0.catm;
@@ -18,7 +16,8 @@
   builders = config.aux.foundation.builders;
   sources = config.aux.foundation.stages.stage0.sources;
   architecture = config.aux.foundation.stages.stage0.architecture;
-in {
+in
+{
   options.aux.foundation.stages.stage0.mescc-tools-extra = {
     meta = {
       description = lib.options.create {
@@ -43,7 +42,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -55,27 +54,29 @@ in {
 
   config = {
     aux.foundation.stages.stage0.mescc-tools-extra = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "mescc-tools-tools";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "mescc-tools-tools";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable = kaem-unwrapped.package;
+          executable = kaem-unwrapped.package;
 
-        args = [
-          "--verbose"
-          "--strict"
-          "--file"
-          ./build.kaem
-        ];
+          args = [
+            "--verbose"
+            "--strict"
+            "--file"
+            ./build.kaem
+          ];
 
-        src = sources.mescc-tools-extra;
+          src = sources.mescc-tools-extra;
 
-        m2libcOS = "linux";
-        m2libcArch = architecture.m2libc;
-        mesccTools = mescc-tools.package;
-      });
+          m2libcOS = "linux";
+          m2libcArch = architecture.m2libc;
+          mesccTools = mescc-tools.package;
+        }
+      );
     };
   };
 }

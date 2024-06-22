@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.busybox;
 
   platform = config.aux.platform;
@@ -9,7 +7,8 @@
 
   stage1 = config.aux.foundation.stages.stage1;
   stage2 = config.aux.foundation.stages.stage2;
-in {
+in
+{
   options.aux.foundation.stages.stage2.busybox = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -63,20 +62,19 @@ in {
         sha256 = "uMwkyVdNgJ5yecO+NJeVxdXOtv3xnKcJ+AzeUOR94xQ=";
       };
 
-      package = let
-        patches = [
-          ./patches/busybox-in-store.patch
-        ];
+      package =
+        let
+          patches = [ ./patches/busybox-in-store.patch ];
 
-        busyboxConfig = [
-          "CC=musl-gcc"
-          "HOSTCC=musl-gcc"
-          "CFLAGS=-I${stage1.linux-headers.package}/include"
-          "KCONFIG_NOTIMESTAMP=y"
-          "CONFIG_PREFIX=${builtins.placeholder "out"}"
-          "CONFIG_STATIC=y"
-        ];
-      in
+          busyboxConfig = [
+            "CC=musl-gcc"
+            "HOSTCC=musl-gcc"
+            "CFLAGS=-I${stage1.linux-headers.package}/include"
+            "KCONFIG_NOTIMESTAMP=y"
+            "CONFIG_PREFIX=${builtins.placeholder "out"}"
+            "CONFIG_STATIC=y"
+          ];
+        in
         builders.bash.build {
           name = "busybox-static-${cfg.version}";
           meta = cfg.meta;

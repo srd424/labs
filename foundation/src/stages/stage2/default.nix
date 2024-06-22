@@ -1,9 +1,8 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   stage2 = config.aux.foundation.stages.stage2;
-in {
+in
+{
   includes = [
     ./bash
     ./binutils

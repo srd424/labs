@@ -1,18 +1,22 @@
 let
   lib = import ./../default.nix;
-in {
+in
+{
   "extend" = {
-    "lib is extensible" = let
-      result = lib.extend (final: prev: prev // {
-        __injected__ = true;
+    "lib is extensible" =
+      let
+        result = lib.extend (
+          final: prev:
+          prev
+          // {
+            __injected__ = true;
 
-        fp = prev.fp // {
-          __injected__ = true;
-        };
-      });
-    in
-      result ? __injected__
-        && result.fp ? __injected__
-        && result.fp ? const;
+            fp = prev.fp // {
+              __injected__ = true;
+            };
+          }
+        );
+      in
+      result ? __injected__ && result.fp ? __injected__ && result.fp ? const;
   };
 }

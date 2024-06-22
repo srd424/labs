@@ -1,13 +1,12 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gzip;
 
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gzip = {
     meta = {
       description = lib.options.create {
@@ -32,7 +31,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -61,8 +60,9 @@ in {
         sha256 = "0ryr5b00qz3xcdcv03qwjdfji8pasp0007ay3ppmk71wl8c1i90w";
       };
 
-      package = let
-      in
+      package =
+        let
+        in
         builders.bash.boot.build {
           name = "gzip-${cfg.version}";
           meta = cfg.meta;

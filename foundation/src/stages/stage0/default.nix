@@ -1,21 +1,21 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0;
 
   system = config.aux.system;
   builders = config.aux.foundation.builders;
 
   architecture =
-    if system == "x86_64-linux"
-    then "AMD64"
-    else if system == "aarch64-linux"
-    then "AArch64"
-    else if system == "i686-linux"
-    then "x86"
-    else builtins.throw "Unsupported system for stage0: ${system}";
-in {
+    if system == "x86_64-linux" then
+      "AMD64"
+    else if system == "aarch64-linux" then
+      "AArch64"
+    else if system == "i686-linux" then
+      "x86"
+    else
+      builtins.throw "Unsupported system for stage0: ${system}";
+in
+{
   includes = [
     ./sources
     ./architecture

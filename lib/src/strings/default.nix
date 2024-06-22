@@ -9,39 +9,44 @@ lib: {
       ## Convert a string into a list of characters.
       ##
       ## @type String -> List String
-      chars = value: let
-        range = lib.lists.range 0 (builtins.stringLength value - 1);
-        pick = index: builtins.substring index 1 value;
-      in
+      chars =
+        value:
+        let
+          range = lib.lists.range 0 (builtins.stringLength value - 1);
+          pick = index: builtins.substring index 1 value;
+        in
         builtins.map pick range;
 
       shell = {
         ## Convert a value into a shell variable.
         ##
         ## @type String -> Any -> String
-        var = name: target: let
-          baseVar = "${name}=${lib.strings.escape.shell.arg target}";
-          listVar = "declare -a ${name}=(${lib.strings.escape.shell.args target})";
-          attrsVar = "declare -A ${name}=(${
-            builtins.concatStringsSep " " (lib.attrs.mapToList
-              (k: v: "[${lib.strings.escape.shell.arg k}]=${lib.strings.escape.shell.arg v}")
-              target)
-          })";
-        in
+        var =
+          name: target:
+          let
+            baseVar = "${name}=${lib.strings.escape.shell.arg target}";
+            listVar = "declare -a ${name}=(${lib.strings.escape.shell.args target})";
+            attrsVar = "declare -A ${name}=(${
+              builtins.concatStringsSep " " (
+                lib.attrs.mapToList (
+                  k: v: "[${lib.strings.escape.shell.arg k}]=${lib.strings.escape.shell.arg v}"
+                ) target
+              )
+            })";
+          in
           assert lib.errors.trace (lib.strings.validate.posix name) "Invalid shell variable name: ${name}";
-            if builtins.isAttrs target && !lib.strings.validate.stringifiable target
-            then attrsVar
-            else if builtins.isList target
-            then listVar
-            else baseVar;
+          if builtins.isAttrs target && !lib.strings.validate.stringifiable target then
+            attrsVar
+          else if builtins.isList target then
+            listVar
+          else
+            baseVar;
 
         ## Create shell variables for a map of values.
         ##
         ## @type Attrs -> String
-        vars = target:
-          builtins.concatStringsSep
-          "\n"
-          (lib.attrs.mapToList lib.strings.into.shell.var target);
+        vars =
+          target: builtins.concatStringsSep "\n" (lib.attrs.mapToList lib.strings.into.shell.var target);
       };
     };
 
@@ -49,36 +54,45 @@ lib: {
       ## Escape parts of a string.
       ##
       ## @type List String -> String -> String
-      any = patterns: source: let
-        escaped = builtins.map (x: "\\${x}") patterns;
-        replacer = builtins.replaceStrings patterns escaped;
-      in
+      any =
+        patterns: source:
+        let
+          escaped = builtins.map (x: "\\${x}") patterns;
+          replacer = builtins.replaceStrings patterns escaped;
+        in
         replacer source;
 
       ## Escape a given set of characters in a string using their
       ## ASCII code prefixed with "\x".
       ##
       ## @type List String -> String
-      c = list: let
-        serialize = char: let
-          hex = lib.numbers.into.hex (lib.strings.into.int char);
-        in "\\x${lib.strings.lower hex}";
-      in
+      c =
+        list:
+        let
+          serialize =
+            char:
+            let
+              hex = lib.numbers.into.hex (lib.strings.into.int char);
+            in
+            "\\x${lib.strings.lower hex}";
+        in
         builtins.replaceStrings list (builtins.map serialize list);
 
       nix = {
         ## Escape a string of Nix code.
         ##
         ## @type String -> String
-        value = value: lib.strings.escape.any ["$"] (builtins.toJSON value);
+        value = value: lib.strings.escape.any [ "$" ] (builtins.toJSON value);
 
         ## Escape a string for use as a Nix identifier.
         ##
         ## @type String -> String
-        identifier = value:
-          if builtins.match "[a-zA-Z_][a-zA-Z0-9_'-]*" value != null
-          then value
-          else lib.strings.escape.nix.value value;
+        identifier =
+          value:
+          if builtins.match "[a-zA-Z_][a-zA-Z0-9_'-]*" value != null then
+            value
+          else
+            lib.strings.escape.nix.value value;
       };
 
       ## Escape a string for use in a regular expression.
@@ -91,14 +105,26 @@ lib: {
       ## @type String -> String
       xml =
         builtins.replaceStrings
-        ["\"" "'" "<" ">" "&"]
-        ["&quot;" "&apos;" "&lt;" "&gt;" "&amp;"];
+          [
+            "\""
+            "'"
+            "<"
+            ">"
+            "&"
+          ]
+          [
+            "&quot;"
+            "&apos;"
+            "&lt;"
+            "&gt;"
+            "&amp;"
+          ];
 
       shell = {
         ## Escape a string for use as a shell argument.
         ##
         ## @type String -> String
-        arg = value: "'${builtins.replaceStrings ["'"] ["'\\''"] (builtins.toString value)}'";
+        arg = value: "'${builtins.replaceStrings [ "'" ] [ "'\\''" ] (builtins.toString value)}'";
 
         ## Escape multiple strings for use as shell arguments.
         ##
@@ -116,18 +142,14 @@ lib: {
       ## Check if a value can be used as a string.
       ##
       ## @type Any -> Bool
-      stringifiable = value:
-        builtins.isString value
-        || builtins.isPath value
-        || value ? outPath
-        || value ? __toString;
+      stringifiable =
+        value: builtins.isString value || builtins.isPath value || value ? outPath || value ? __toString;
 
       ## Check whether a string is empty. This includes strings that
       ## only contain whitespace.
       ##
       ## @type String -> Bool
-      empty = value:
-        builtins.match "[ \t\n]*" value != null;
+      empty = value: builtins.match "[ \t\n]*" value != null;
     };
 
     order = {
@@ -136,45 +158,45 @@ lib: {
       ## @type String -> OrderedString
       anywhere = value: {
         inherit value;
-        deps = [];
+        deps = [ ];
       };
 
       ## Create an ordered string that will be placed before its dependencies.
       ##
       ## @type String -> List String -> OrderedString
-      after = deps: value: {
-        inherit deps value;
-      };
+      after = deps: value: { inherit deps value; };
 
       ## Apply the order for a list of ordered strings. This function also supports
       ## plain strings in the list so long as they have an accompanying static definition
       ## provided.
       ##
       ## @type Attrs -> List (OrderedString | String)
-      apply = static: items: let
-        process = complete: remaining: let
-          next = builtins.head remaining;
+      apply =
+        static: items:
+        let
+          process =
+            complete: remaining:
+            let
+              next = builtins.head remaining;
 
-          before = process complete next.deps;
-          after = process before.complete (builtins.tail remaining);
+              before = process complete next.deps;
+              after = process before.complete (builtins.tail remaining);
+            in
+            if builtins.length remaining == 0 then
+              {
+                inherit complete;
+                result = [ ];
+              }
+            else if builtins.isAttrs next then
+              {
+                inherit complete;
+                result = before.result ++ [ next.value ] ++ after.result;
+              }
+            else
+              process (complete // { "${next}" = true; }) ([ static.${next} ] ++ builtins.tail remaining);
+
+          processed = process { } items;
         in
-          if builtins.length remaining == 0
-          then {
-            inherit complete;
-            result = [];
-          }
-          else if builtins.isAttrs next
-          then {
-            inherit complete;
-            result = before.result ++ [next.value] ++ after.result;
-          }
-          else
-            process
-            (complete // {"${next}" = true;})
-            ([static.${next}] ++ builtins.tail remaining);
-
-        processed = process {} items;
-      in
         processed.result;
     };
 
@@ -182,10 +204,7 @@ lib: {
     ## an empty string.
     ##
     ## @type Bool -> String -> String
-    when = condition: value:
-      if condition
-      then value
-      else "";
+    when = condition: value: if condition then value else "";
 
     ## A table of ASCII characters mapped to their integer character code.
     ##
@@ -210,7 +229,8 @@ lib: {
     ## Concatenate and map a list of strings together with a separator.
     ##
     ## @type String -> (a -> String) -> List a -> String
-    concatMapSep = separator: f: list:
+    concatMapSep =
+      separator: f: list:
       builtins.concatStringsSep separator (builtins.map f list);
 
     ## Change a string to uppercase.
@@ -231,82 +251,92 @@ lib: {
     ## Split a string by a separator.
     ##
     ## @type String -> String -> List String
-    split = separator: value: let
-      escaped = lib.strings.escape.regex (builtins.toString separator);
-      raw = builtins.split escaped (builtins.toString value);
-      parts = builtins.filter builtins.isString raw;
-    in
+    split =
+      separator: value:
+      let
+        escaped = lib.strings.escape.regex (builtins.toString separator);
+        raw = builtins.split escaped (builtins.toString value);
+        parts = builtins.filter builtins.isString raw;
+      in
       builtins.map (lib.strings.withContext value) parts;
 
     ## Check if a string starts with a given prefix.
     ##
     ## @type String -> String -> Bool
-    hasPrefix = prefix: value: let
-      text = builtins.substring 0 (builtins.stringLength prefix) value;
-    in
+    hasPrefix =
+      prefix: value:
+      let
+        text = builtins.substring 0 (builtins.stringLength prefix) value;
+      in
       text == prefix;
 
     ## Check if a string ends with a given suffix.
     ##
     ## @type String -> String -> Bool
-    hasSuffix = suffix: value: let
-      valueLength = builtins.stringLength value;
-      suffixLength = builtins.stringLength suffix;
-      text = builtins.substring (valueLength - suffixLength) valueLength value;
-    in
-      (valueLength >= suffixLength)
-      && text == suffix;
+    hasSuffix =
+      suffix: value:
+      let
+        valueLength = builtins.stringLength value;
+        suffixLength = builtins.stringLength suffix;
+        text = builtins.substring (valueLength - suffixLength) valueLength value;
+      in
+      (valueLength >= suffixLength) && text == suffix;
 
     ## Check if a string contains a given infix.
     ##
     ## @type String -> String -> Bool
-    hasInfix = infix: value:
-      builtins.match ".*${lib.strings.escape.regex infix}.*" "${value}" != null;
+    hasInfix = infix: value: builtins.match ".*${lib.strings.escape.regex infix}.*" "${value}" != null;
 
     ## Remove a prefix from a string if it exists.
     ##
     ## @type String -> String -> String
-    removePrefix = prefix: value: let
-      prefixLength = builtins.stringLength prefix;
-      valueLength = builtins.stringLength value;
-    in
-      if lib.strings.hasPrefix prefix value
-      then builtins.substring prefixLength (valueLength - prefixLength) value
-      else value;
+    removePrefix =
+      prefix: value:
+      let
+        prefixLength = builtins.stringLength prefix;
+        valueLength = builtins.stringLength value;
+      in
+      if lib.strings.hasPrefix prefix value then
+        builtins.substring prefixLength (valueLength - prefixLength) value
+      else
+        value;
 
     ## Remove a suffix from a string if it exists.
     ##
     ## @type String -> String -> String
-    removeSuffix = suffix: value: let
-      suffixLength = builtins.stringLength suffix;
-      valueLength = builtins.stringLength value;
-    in
-      if lib.strings.hasSuffix suffix value
-      then builtins.substring 0 (valueLength - suffixLength) value
-      else value;
+    removeSuffix =
+      suffix: value:
+      let
+        suffixLength = builtins.stringLength suffix;
+        valueLength = builtins.stringLength value;
+      in
+      if lib.strings.hasSuffix suffix value then
+        builtins.substring 0 (valueLength - suffixLength) value
+      else
+        value;
 
     ## Pad the start of a string with a character until it reaches
     ## a given length.
     ##
     ## @type Integer -> String -> String
-    padStart = length: char: value: let
-      valueLength = builtins.stringLength value;
-      padding = builtins.genList (_: char) (length - valueLength);
-    in
-      if valueLength < length
-      then (builtins.concatStringsSep "" padding) + value
-      else value;
+    padStart =
+      length: char: value:
+      let
+        valueLength = builtins.stringLength value;
+        padding = builtins.genList (_: char) (length - valueLength);
+      in
+      if valueLength < length then (builtins.concatStringsSep "" padding) + value else value;
 
     ## Pad the end of a string with a character until it reaches
     ## a given length.
     ##
     ## @type Integer -> String -> String
-    padEnd = length: char: value: let
-      valueLength = builtins.stringLength value;
-      padding = builtins.genList (_: char) (length - valueLength);
-    in
-      if valueLength < length
-      then value + (builtins.concatStringsSep "" padding)
-      else value;
+    padEnd =
+      length: char: value:
+      let
+        valueLength = builtins.stringLength value;
+        padding = builtins.genList (_: char) (length - valueLength);
+      in
+      if valueLength < length then value + (builtins.concatStringsSep "" padding) else value;
   };
 }

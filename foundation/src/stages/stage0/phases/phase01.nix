@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.hex1;
   hex0 = config.aux.foundation.stages.stage0.hex0;
 
@@ -9,7 +7,8 @@
   builders = config.aux.foundation.builders;
   sources = config.aux.foundation.stages.stage0.sources;
   architecture = config.aux.foundation.stages.stage0.architecture;
-in {
+in
+{
   options.aux.foundation.stages.stage0.hex1 = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -46,19 +45,21 @@ in {
 
   config = {
     aux.foundation.stages.stage0.hex1 = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "hex1";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "hex1";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable = hex0.package;
+          executable = hex0.package;
 
-        args = [
-          "${sources.base}/hex1_${architecture.base}.hex0"
-          (builtins.placeholder "out")
-        ];
-      });
+          args = [
+            "${sources.base}/hex1_${architecture.base}.hex0"
+            (builtins.placeholder "out")
+          ];
+        }
+      );
     };
   };
 }

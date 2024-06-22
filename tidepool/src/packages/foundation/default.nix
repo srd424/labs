@@ -3,7 +3,8 @@
   lib',
   config,
   options,
-}: {
+}:
+{
   includes = [
     ./gcc
     ./binutils

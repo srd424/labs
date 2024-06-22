@@ -1,4 +1,5 @@
-{lib}: {
+{ lib }:
+{
   options.aux = {
     system = lib.options.create {
       type = lib.types.string;

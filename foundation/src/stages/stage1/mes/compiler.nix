@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.mes.compiler;
 
   system = config.aux.system;
@@ -9,7 +7,8 @@
 
   stage0 = config.aux.foundation.stages.stage0;
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.mes.compiler = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -46,45 +45,46 @@ in {
 
   config = {
     aux.foundation.stages.stage1.mes.compiler = {
-      package = let
-        compile = path: let
-          file = builtins.baseNameOf path;
-          fileWithoutExtension = builtins.replaceStrings [".c"] [""] file;
+      package =
+        let
+          compile =
+            path:
+            let
+              file = builtins.baseNameOf path;
+              fileWithoutExtension = builtins.replaceStrings [ ".c" ] [ "" ] file;
 
-          cc = builtins.concatStringsSep " " [
-            "${stage1.mes.libs.src.bin}/bin/mes-m2"
-            "-e"
-            "main"
-            "${stage1.mes.libs.src.bin}/bin/mescc.scm"
-            "--"
-            "-D"
-            "HAVE_CONFIG_H=1"
-            "-I"
-            "${stage1.mes.libs.prefix}/include"
-            "-I"
-            "${stage1.mes.libs.prefix}/include/linux/x86"
-          ];
+              cc = builtins.concatStringsSep " " [
+                "${stage1.mes.libs.src.bin}/bin/mes-m2"
+                "-e"
+                "main"
+                "${stage1.mes.libs.src.bin}/bin/mescc.scm"
+                "--"
+                "-D"
+                "HAVE_CONFIG_H=1"
+                "-I"
+                "${stage1.mes.libs.prefix}/include"
+                "-I"
+                "${stage1.mes.libs.prefix}/include/linux/x86"
+              ];
+            in
+            builders.kaem.build {
+              name = fileWithoutExtension;
+
+              script = ''
+                mkdir ''${out}
+                cd ''${out}
+                ${cc} -c ${stage1.mes.libs.prefix}/${path}
+              '';
+            };
+
+          getSourcePath = suffix: source: "${source}/${source.name}${suffix}";
+
+          sources = import ./sources.nix;
+
+          files = lib.strings.concatMapSep " " (getSourcePath ".o") (
+            builtins.map compile sources.x86.linux.mescc.mes
+          );
         in
-          builders.kaem.build {
-            name = fileWithoutExtension;
-
-            script = ''
-              mkdir ''${out}
-              cd ''${out}
-              ${cc} -c ${stage1.mes.libs.prefix}/${path}
-            '';
-          };
-
-        getSourcePath = suffix: source: "${source}/${source.name}${suffix}";
-
-        sources = import ./sources.nix;
-
-        files =
-          lib.strings.concatMapSep
-          " "
-          (getSourcePath ".o")
-          (builtins.map compile sources.x86.linux.mescc.mes);
-      in
         builders.kaem.build {
           name = "mes-${stage1.mes.version}";
 

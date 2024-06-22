@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gnutar.musl;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gnutar.musl = {
     package = lib.options.create {
       type = lib.types.derivation;

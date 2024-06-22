@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.heirloom.devtools;
 
   platform = config.aux.platform;
@@ -10,7 +8,8 @@
   stage0 = config.aux.foundation.stages.stage0;
   stage1 = config.aux.foundation.stages.stage1;
   stage2 = config.aux.foundation.stages.stage2;
-in {
+in
+{
   options.aux.foundation.stages.stage1.heirloom.devtools = {
     package = lib.options.create {
       type = lib.types.derivation;
@@ -54,7 +53,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
   };
@@ -68,24 +67,25 @@ in {
         sha256 = "9f233d8b78e4351fe9dd2d50d83958a0e5af36f54e9818521458a08e058691ba";
       };
 
-      package = let
-        # Thanks to the live-bootstrap project!
-        # See https://github.com/fosslinux/live-bootstrap/blob/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527/heirloom-devtools-070527.kaem
-        liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527";
+      package =
+        let
+          # Thanks to the live-bootstrap project!
+          # See https://github.com/fosslinux/live-bootstrap/blob/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527/heirloom-devtools-070527.kaem
+          liveBootstrap = "https://github.com/fosslinux/live-bootstrap/raw/d918b984ad6fe4fc7680f3be060fd82f8c9fddd9/sysa/heirloom-devtools-070527";
 
-        patches = [
-          # Remove all kinds of wchar support. Mes Libc does not support wchar in any form
-          (builtins.fetchurl {
-            url = "${liveBootstrap}/patches/yacc_remove_wchar.patch";
-            sha256 = "0wgiz02bb7xzjy2gnbjp8y31qy6rc4b29v01zi32zh9lw54j68hc";
-          })
-          # Similarly to yacc, remove wchar. See yacc patch for further information
-          (builtins.fetchurl {
-            url = "${liveBootstrap}/patches/lex_remove_wchar.patch";
-            sha256 = "168dfngi51ljjqgd55wbvmffaq61gk48gak50ymnl1br92qkp4zh";
-          })
-        ];
-      in
+          patches = [
+            # Remove all kinds of wchar support. Mes Libc does not support wchar in any form
+            (builtins.fetchurl {
+              url = "${liveBootstrap}/patches/yacc_remove_wchar.patch";
+              sha256 = "0wgiz02bb7xzjy2gnbjp8y31qy6rc4b29v01zi32zh9lw54j68hc";
+            })
+            # Similarly to yacc, remove wchar. See yacc patch for further information
+            (builtins.fetchurl {
+              url = "${liveBootstrap}/patches/lex_remove_wchar.patch";
+              sha256 = "168dfngi51ljjqgd55wbvmffaq61gk48gak50ymnl1br92qkp4zh";
+            })
+          ];
+        in
         builders.kaem.build {
           name = "heirloom-${cfg.version}";
           meta = cfg.meta;

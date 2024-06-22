@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gawk.boot;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gawk.boot = {
     package = lib.options.create {
       type = lib.types.derivation;
@@ -35,12 +34,13 @@ in {
         sha256 = "1z4bibjm7ldvjwq3hmyifyb429rs2d9bdwkvs0r171vv1khpdwmb";
       };
 
-      package = let
-        patches = [
-          # for reproducibility don't generate date stamp
-          ./patches/no-stamp.patch
-        ];
-      in
+      package =
+        let
+          patches = [
+            # for reproducibility don't generate date stamp
+            ./patches/no-stamp.patch
+          ];
+        in
         builders.bash.boot.build {
           name = "gawk-boot-${cfg.version}";
 

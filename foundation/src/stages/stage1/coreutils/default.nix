@@ -1,17 +1,14 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.coreutils;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
-  includes = [
-    ./boot.nix
-  ];
+in
+{
+  includes = [ ./boot.nix ];
 
   options.aux.foundation.stages.stage1.coreutils = {
     meta = {
@@ -37,7 +34,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -66,17 +63,18 @@ in {
         sha256 = "X2ANkJOXOwr+JTk9m8GMRPIjJlf0yg2V6jHHAutmtzk=";
       };
 
-      package = let
-        configureFlags = [
-          "--prefix=${builtins.placeholder "out"}"
-          "--build=${platform.build}"
-          "--host=${platform.host}"
-          # musl 1.1.x doesn't use 64bit time_t
-          "--disable-year2038"
-          # libstdbuf.so fails in static builds
-          "--enable-no-install-program=stdbuf"
-        ];
-      in
+      package =
+        let
+          configureFlags = [
+            "--prefix=${builtins.placeholder "out"}"
+            "--build=${platform.build}"
+            "--host=${platform.host}"
+            # musl 1.1.x doesn't use 64bit time_t
+            "--disable-year2038"
+            # libstdbuf.so fails in static builds
+            "--enable-no-install-program=stdbuf"
+          ];
+        in
         builders.bash.boot.build {
           name = "coreutils-${cfg.version}";
 

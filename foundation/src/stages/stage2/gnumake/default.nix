@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.gnumake;
 
   platform = config.aux.platform;
@@ -9,7 +7,8 @@
 
   stage1 = config.aux.foundation.stages.stage1;
   stage2 = config.aux.foundation.stages.stage2;
-in {
+in
+{
   options.aux.foundation.stages.stage2.gnumake = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -63,16 +62,17 @@ in {
         sha256 = "3Rb7HWe/q3mnL16DkHNcSePo5wtJRaFasfgd23hlj7M=";
       };
 
-      package = let
-        patches = [
-          # Replaces /bin/sh with sh, see patch file for reasoning
-          ./patches/0001-No-impure-bin-sh.patch
-          # Purity: don't look for library dependencies (of the form `-lfoo') in /lib
-          # and /usr/lib. It's a stupid feature anyway. Likewise, when searching for
-          # included Makefiles, don't look in /usr/include and friends.
-          ./patches/0002-remove-impure-dirs.patch
-        ];
-      in
+      package =
+        let
+          patches = [
+            # Replaces /bin/sh with sh, see patch file for reasoning
+            ./patches/0001-No-impure-bin-sh.patch
+            # Purity: don't look for library dependencies (of the form `-lfoo') in /lib
+            # and /usr/lib. It's a stupid feature anyway. Likewise, when searching for
+            # included Makefiles, don't look in /usr/include and friends.
+            ./patches/0002-remove-impure-dirs.patch
+          ];
+        in
         builders.bash.boot.build {
           name = "gnumake-static-${cfg.version}";
 

@@ -1,13 +1,12 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.mes.libc;
 
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.mes.libc = {
     meta = {
       description = lib.options.create {
@@ -32,7 +31,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -44,22 +43,21 @@ in {
 
   config = {
     aux.foundation.stages.stage1.mes.libc = {
-      package = let
-        sources = import ./sources.nix;
+      package =
+        let
+          sources = import ./sources.nix;
 
-        libtcc1 = sources.x86.linux.gcc.libtcc1;
+          libtcc1 = sources.x86.linux.gcc.libtcc1;
 
-        first = lib.lists.take 100 sources.x86.linux.gcc.libc_gnu;
-        last = lib.lists.drop 100 sources.x86.linux.gcc.libc_gnu;
-      in
+          first = lib.lists.take 100 sources.x86.linux.gcc.libc_gnu;
+          last = lib.lists.drop 100 sources.x86.linux.gcc.libc_gnu;
+        in
         builders.kaem.build {
           name = "mes-libc-${stage1.mes.version}";
 
           meta = cfg.meta;
 
-          deps.build.host = [
-            stage1.ln-boot.package
-          ];
+          deps.build.host = [ stage1.ln-boot.package ];
 
           script = ''
             cd ${stage1.mes.libs.prefix}

@@ -7,9 +7,7 @@
   acsl14 = {
     fullName = "Anti-Capitalist Software License v1.4";
     url = "https://anticapitalist.software/";
-    /*
-    restrictions on corporations apply for both use and redistribution
-    */
+    # restrictions on corporations apply for both use and redistribution
     free = false;
     redistributable = false;
   };

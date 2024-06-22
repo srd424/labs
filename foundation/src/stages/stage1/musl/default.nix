@@ -1,17 +1,14 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.musl;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
-  includes = [
-    ./boot.nix
-  ];
+in
+{
+  includes = [ ./boot.nix ];
 
   options.aux.foundation.stages.stage1.musl = {
     meta = {
@@ -38,7 +35,7 @@ in {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
         # TODO: Support more platforms.
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 

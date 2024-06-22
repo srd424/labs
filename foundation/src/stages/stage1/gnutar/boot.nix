@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gnutar.boot;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gnutar.boot = {
     package = lib.options.create {
       type = lib.types.derivation;
@@ -35,8 +34,9 @@ in {
         sha256 = "02m6gajm647n8l9a5bnld6fnbgdpyi4i3i83p7xcwv0kif47xhy6";
       };
 
-      package = let
-      in
+      package =
+        let
+        in
         builders.bash.boot.build {
           name = "gnutar-boot-${cfg.version}";
 

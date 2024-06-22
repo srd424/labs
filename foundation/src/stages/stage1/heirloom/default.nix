@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.heirloom;
 
   platform = config.aux.platform;
@@ -9,10 +7,9 @@
 
   stage1 = config.aux.foundation.stages.stage1;
   stage2 = config.aux.foundation.stages.stage2;
-in {
-  includes = [
-    ./devtools.nix
-  ];
+in
+{
+  includes = [ ./devtools.nix ];
 
   options.aux.foundation.stages.stage1.heirloom = {
     meta = {
@@ -48,7 +45,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -77,61 +74,62 @@ in {
         sha256 = "6zP3C8wBmx0OCkHx11UtRcV6FicuThxIY07D5ESWow8=";
       };
 
-      package = let
-        patches = [
-          # we pre-generate nawk's proctab.c as meslibc is not capable of running maketab
-          # during build time (insufficient sscanf support)
-          ./patches/proctab.patch
+      package =
+        let
+          patches = [
+            # we pre-generate nawk's proctab.c as meslibc is not capable of running maketab
+            # during build time (insufficient sscanf support)
+            ./patches/proctab.patch
 
-          # disable utilities that don't build successfully
-          ./patches/disable-programs.patch
+            # disable utilities that don't build successfully
+            ./patches/disable-programs.patch
 
-          # "tcc -ar" doesn't support creating empty archives
-          ./patches/tcc-empty-ar.patch
-          # meslibc doesn't have seperate libm
-          ./patches/dont-link-lm.patch
-          # meslibc's vprintf doesn't support %ll
-          ./patches/vprintf.patch
-          # meslibc doesn't support sysconf()
-          ./patches/sysconf.patch
-          # meslibc doesn't support locale
-          ./patches/strcoll.patch
-          # meslibc doesn't support termios.h
-          ./patches/termios.patch
-          # meslibc doesn't support utime.h
-          ./patches/utime.patch
-          # meslibc doesn't support langinfo.h
-          ./patches/langinfo.patch
-          # support building with meslibc
-          ./patches/meslibc-support.patch
-          # remove socket functionality as unsupported by meslibc
-          ./patches/cp-no-socket.patch
-        ];
+            # "tcc -ar" doesn't support creating empty archives
+            ./patches/tcc-empty-ar.patch
+            # meslibc doesn't have seperate libm
+            ./patches/dont-link-lm.patch
+            # meslibc's vprintf doesn't support %ll
+            ./patches/vprintf.patch
+            # meslibc doesn't support sysconf()
+            ./patches/sysconf.patch
+            # meslibc doesn't support locale
+            ./patches/strcoll.patch
+            # meslibc doesn't support termios.h
+            ./patches/termios.patch
+            # meslibc doesn't support utime.h
+            ./patches/utime.patch
+            # meslibc doesn't support langinfo.h
+            ./patches/langinfo.patch
+            # support building with meslibc
+            ./patches/meslibc-support.patch
+            # remove socket functionality as unsupported by meslibc
+            ./patches/cp-no-socket.patch
+          ];
 
-        makeFlags = [
-          # mk.config build options
-          "CC='tcc -B ${stage1.tinycc.mes.libs.package}/lib -include ${./stubs.h} -include ${./musl.h}'"
-          "AR='tcc -ar'"
-          "RANLIB=true"
-          "STRIP=true"
-          "SHELL=${stage1.bash.package}/bin/sh"
-          "POSIX_SHELL=${stage1.bash.package}/bin/sh"
-          "DEFBIN=/bin"
-          "SV3BIN=/5bin"
-          "S42BIN=/5bin/s42"
-          "SUSBIN=/bin"
-          "SU3BIN=/5bin/posix2001"
-          "UCBBIN=/ucb"
-          "CCSBIN=/ccs/bin"
-          "DEFLIB=/lib"
-          "DEFSBIN=/bin"
-          "MANDIR=/share/man"
-          "LCURS=" # disable ncurses
-          "USE_ZLIB=0" # disable zlib
-          "IWCHAR='-I../libwchar'"
-          "LWCHAR='-L../libwchar -lwchar'"
-        ];
-      in
+          makeFlags = [
+            # mk.config build options
+            "CC='tcc -B ${stage1.tinycc.mes.libs.package}/lib -include ${./stubs.h} -include ${./musl.h}'"
+            "AR='tcc -ar'"
+            "RANLIB=true"
+            "STRIP=true"
+            "SHELL=${stage1.bash.package}/bin/sh"
+            "POSIX_SHELL=${stage1.bash.package}/bin/sh"
+            "DEFBIN=/bin"
+            "SV3BIN=/5bin"
+            "S42BIN=/5bin/s42"
+            "SUSBIN=/bin"
+            "SU3BIN=/5bin/posix2001"
+            "UCBBIN=/ucb"
+            "CCSBIN=/ccs/bin"
+            "DEFLIB=/lib"
+            "DEFSBIN=/bin"
+            "MANDIR=/share/man"
+            "LCURS=" # disable ncurses
+            "USE_ZLIB=0" # disable zlib
+            "IWCHAR='-I../libwchar'"
+            "LWCHAR='-L../libwchar -lwchar'"
+          ];
+        in
         builders.bash.boot.build {
           name = "heirloom-${cfg.version}";
           meta = cfg.meta;

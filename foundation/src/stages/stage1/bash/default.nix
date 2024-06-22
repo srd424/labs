@@ -1,17 +1,14 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.bash;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
-  includes = [
-    ./boot.nix
-  ];
+in
+{
+  includes = [ ./boot.nix ];
 
   options.aux.foundation.stages.stage1.bash = {
     meta = {
@@ -37,7 +34,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
 
       mainProgram = lib.options.create {
@@ -72,12 +69,13 @@ in {
         sha256 = "132qng0jy600mv1fs95ylnlisx2wavkkgpb19c6kmz7lnmjhjwhk";
       };
 
-      package = let
-        patches = [
-          # flush output for generated code
-          ./patches/mksignames-flush.patch
-        ];
-      in
+      package =
+        let
+          patches = [
+            # flush output for generated code
+            ./patches/mksignames-flush.patch
+          ];
+        in
         builders.bash.boot.build {
           name = "bash-${cfg.version}";
 

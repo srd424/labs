@@ -2,36 +2,39 @@
   lib,
   lib',
   config,
-}: let
+}:
+let
   doubles = lib'.systems.doubles.all;
 
-  packages = builtins.removeAttrs config.packages ["cross"];
-in {
-  includes = [
-    ./foundation
-  ];
+  packages = builtins.removeAttrs config.packages [ "cross" ];
+in
+{
+  includes = [ ./foundation ];
 
   options = {
     packages = lib.options.create {
       description = "The package set.";
       type = lib.types.submodule {
-        freeform = lib.types.attrs.of (lib.types.submodule {
-          freeform = lib'.types.alias;
-        });
+        freeform = lib.types.attrs.of (lib.types.submodule { freeform = lib'.types.alias; });
 
-        options.cross = lib.attrs.generate doubles (system:
+        options.cross = lib.attrs.generate doubles (
+          system:
           lib.options.create {
             description = "The cross-compiled package set for the ${system} target.";
             type = lib'.types.packages;
-            default = {};
-          });
+            default = { };
+          }
+        );
       };
     };
 
     preferences.packages = {
       version = lib.options.create {
         description = "The preferred package version when using aliases.";
-        type = lib.types.enum ["latest" "stable"];
+        type = lib.types.enum [
+          "latest"
+          "stable"
+        ];
         default.value = "latest";
       };
     };
@@ -39,15 +42,17 @@ in {
 
   config.packages.cross = lib.attrs.generate doubles (
     system:
-      builtins.mapAttrs
-      (
-        namespace:
-          builtins.mapAttrs
-          (name: alias: let
-            setHost = package:
-              if package != {}
-              then
-                (package.extend ({config}: {
+    builtins.mapAttrs (
+      namespace:
+      builtins.mapAttrs (
+        name: alias:
+        let
+          setHost =
+            package:
+            if package != { } then
+              (package.extend (
+                { config }:
+                {
                   config = {
                     platform = {
                       host = lib.modules.overrides.force system;
@@ -72,21 +77,17 @@ in {
                       };
                     };
                   };
-                }))
-                .config
-              else package;
+                }
+              )).config
+            else
+              package;
 
-            updated =
-              alias
-              // {
-                versions =
-                  builtins.mapAttrs
-                  (version: package: setHost package)
-                  alias.versions;
-              };
-          in
-            updated)
+          updated = alias // {
+            versions = builtins.mapAttrs (version: package: setHost package) alias.versions;
+          };
+        in
+        updated
       )
-      packages
+    ) packages
   );
 }

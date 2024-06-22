@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.bzip2;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage2.bzip2 = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
         # TODO: Support more platforms.
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 

@@ -1,12 +1,11 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.mes;
 
   system = config.aux.system;
   builders = config.aux.foundation.builders;
-in {
+in
+{
   includes = [
     ./compiler.nix
     ./libs.nix

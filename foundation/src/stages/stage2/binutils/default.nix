@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.binutils;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage2.binutils = {
     meta = {
       description = lib.options.create {
@@ -33,7 +32,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -62,35 +61,36 @@ in {
         sha256 = "rppXieI0WeWWBuZxRyPy0//DHAMXQZHvDQFb3wYAdFA=";
       };
 
-      package = let
-        patches = [
-          # Make binutils output deterministic by default.
-          ./patches/deterministic.patch
-        ];
+      package =
+        let
+          patches = [
+            # Make binutils output deterministic by default.
+            ./patches/deterministic.patch
+          ];
 
-        configureFlags = [
-          "CC=musl-gcc"
-          "LDFLAGS=--static"
-          "--prefix=${builtins.placeholder "out"}"
-          "--build=${platform.build}"
-          "--host=${platform.host}"
+          configureFlags = [
+            "CC=musl-gcc"
+            "LDFLAGS=--static"
+            "--prefix=${builtins.placeholder "out"}"
+            "--build=${platform.build}"
+            "--host=${platform.host}"
 
-          "--with-sysroot=/"
-          "--enable-deterministic-archives"
-          # depends on bison
-          "--disable-gprofng"
+            "--with-sysroot=/"
+            "--enable-deterministic-archives"
+            # depends on bison
+            "--disable-gprofng"
 
-          # Turn on --enable-new-dtags by default to make the linker set
-          # RUNPATH instead of RPATH on binaries.  This is important because
-          # RUNPATH can be overridden using LD_LIBRARY_PATH at runtime.
-          "--enable-new-dtags"
+            # Turn on --enable-new-dtags by default to make the linker set
+            # RUNPATH instead of RPATH on binaries.  This is important because
+            # RUNPATH can be overridden using LD_LIBRARY_PATH at runtime.
+            "--enable-new-dtags"
 
-          # By default binutils searches $libdir for libraries. This brings in
-          # libbfd and libopcodes into a default visibility. Drop default lib
-          # path to force users to declare their use of these libraries.
-          "--with-lib-path=:"
-        ];
-      in
+            # By default binutils searches $libdir for libraries. This brings in
+            # libbfd and libopcodes into a default visibility. Drop default lib
+            # path to force users to declare their use of these libraries.
+            "--with-lib-path=:"
+          ];
+        in
         builders.bash.build {
           name = "binutils-static-${cfg.version}";
 

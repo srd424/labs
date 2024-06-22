@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.exports;
 
   type = lib.types.one [
@@ -9,12 +7,13 @@
     (lib.types.attrs.any)
     (lib.types.function lib.types.attrs.any)
   ];
-in {
+in
+{
   options = {
     exports = {
       modules = lib.options.create {
         type = lib.types.attrs.of type;
-        default.value = {};
+        default.value = { };
         description = "An attribute set of modules to export.";
       };
     };
@@ -22,7 +21,7 @@ in {
     exported = {
       modules = lib.options.create {
         type = lib.types.attrs.of type;
-        default.value = {};
+        default.value = { };
         description = "An attribute set of modules to export.";
       };
     };

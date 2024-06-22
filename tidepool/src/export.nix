@@ -1,11 +1,10 @@
 # This file handles creating all of the exports for this project and is not
 # exported itself.
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   lib' = config.lib;
-in {
+in
+{
   freeform = lib.types.any;
 
   config = {

@@ -1,4 +1,5 @@
-{lib}: {
+{ lib }:
+{
   options.aux.mirrors = {
     gnu = lib.options.create {
       type = lib.types.string;

@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.hex0;
 
   system = config.aux.system;
@@ -9,14 +7,16 @@
   sources = config.aux.foundation.stages.stage0.sources;
 
   architecture =
-    if system == "x86_64-linux"
-    then "AMD64"
-    else if system == "aarch64-linux"
-    then "AArch64"
-    else if system == "i686-linux"
-    then "x86"
-    else builtins.throw "Unsupported system for stage0: ${system}";
-in {
+    if system == "x86_64-linux" then
+      "AMD64"
+    else if system == "aarch64-linux" then
+      "AArch64"
+    else if system == "i686-linux" then
+      "x86"
+    else
+      builtins.throw "Unsupported system for stage0: ${system}";
+in
+{
   options.aux.foundation.stages.stage0.hex0 = {
     meta = {
       description = lib.options.create {
@@ -41,7 +41,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -66,40 +66,45 @@ in {
 
   config = {
     aux.foundation.stages.stage0.hex0 = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "hex0";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "hex0";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable = cfg.executable;
+          executable = cfg.executable;
 
-        args = [
-          "${sources.base}/hex0_${architecture}.hex0"
-          (builtins.placeholder "out")
-        ];
+          args = [
+            "${sources.base}/hex0_${architecture}.hex0"
+            (builtins.placeholder "out")
+          ];
 
-        outputHashMode = "recursive";
-        outputHashAlgo = "sha256";
-        outputHash = cfg.hash;
-      });
-
-      hash = lib.modules.overrides.default (
-        if system == "x86_64-linux"
-        then "sha256-RCgK9oZRDQUiWLVkcIBSR2HeoB+Bh0czthrpjFEkCaY="
-        else if system == "aarch64-linux"
-        then "sha256-XTPsoKeI6wTZAF0UwEJPzuHelWOJe//wXg4HYO0dEJo="
-        else if system == "i686-linux"
-        then "sha256-QU3RPGy51W7M2xnfFY1IqruKzusrSLU+L190ztN6JW8="
-        else null
+          outputHashMode = "recursive";
+          outputHashAlgo = "sha256";
+          outputHash = cfg.hash;
+        }
       );
 
-      executable = lib.modules.overrides.default (import <nix/fetchurl.nix> {
-        name = "hex0-seed";
-        url = "https://github.com/oriansj/bootstrap-seeds/raw/b1263ff14a17835f4d12539226208c426ced4fba/POSIX/${architecture}/hex0-seed";
-        executable = true;
-        hash = cfg.hash;
-      });
+      hash = lib.modules.overrides.default (
+        if system == "x86_64-linux" then
+          "sha256-RCgK9oZRDQUiWLVkcIBSR2HeoB+Bh0czthrpjFEkCaY="
+        else if system == "aarch64-linux" then
+          "sha256-XTPsoKeI6wTZAF0UwEJPzuHelWOJe//wXg4HYO0dEJo="
+        else if system == "i686-linux" then
+          "sha256-QU3RPGy51W7M2xnfFY1IqruKzusrSLU+L190ztN6JW8="
+        else
+          null
+      );
+
+      executable = lib.modules.overrides.default (
+        import <nix/fetchurl.nix> {
+          name = "hex0-seed";
+          url = "https://github.com/oriansj/bootstrap-seeds/raw/b1263ff14a17835f4d12539226208c426ced4fba/POSIX/${architecture}/hex0-seed";
+          executable = true;
+          hash = cfg.hash;
+        }
+      );
     };
   };
 }

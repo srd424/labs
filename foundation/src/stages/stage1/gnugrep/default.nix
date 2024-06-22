@@ -1,13 +1,12 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gnugrep;
 
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gnugrep = {
     meta = {
       description = lib.options.create {
@@ -32,7 +31,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
 
       mainProgram = lib.options.create {
@@ -67,14 +66,15 @@ in {
         sha256 = "05iayw5sfclc476vpviz67hdy03na0pz2kb5csa50232nfx34853";
       };
 
-      package = let
-        # Thanks to the live-bootstrap project!
-        # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/grep-2.4
-        makefile = builtins.fetchurl {
-          url = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/grep-2.4/mk/main.mk";
-          sha256 = "08an9ljlqry3p15w28hahm6swnd3jxizsd2188przvvsj093j91k";
-        };
-      in
+      package =
+        let
+          # Thanks to the live-bootstrap project!
+          # See https://github.com/fosslinux/live-bootstrap/blob/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/grep-2.4
+          makefile = builtins.fetchurl {
+            url = "https://github.com/fosslinux/live-bootstrap/raw/1bc4296091c51f53a5598050c8956d16e945b0f5/sysa/grep-2.4/mk/main.mk";
+            sha256 = "08an9ljlqry3p15w28hahm6swnd3jxizsd2188przvvsj093j91k";
+          };
+        in
         builders.bash.boot.build {
           name = "gnugrep-${cfg.version}";
           meta = cfg.meta;

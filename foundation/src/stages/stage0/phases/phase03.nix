@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.catm;
   hex0 = config.aux.foundation.stages.stage0.hex0;
   hex1 = config.aux.foundation.stages.stage0.hex1;
@@ -11,7 +9,8 @@
   builders = config.aux.foundation.builders;
   sources = config.aux.foundation.stages.stage0.sources;
   architecture = config.aux.foundation.stages.stage0.architecture;
-in {
+in
+{
   options.aux.foundation.stages.stage0.catm = {
     meta = {
       description = lib.options.create {
@@ -36,7 +35,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -48,28 +47,28 @@ in {
 
   config = {
     aux.foundation.stages.stage0.catm = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "catm";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "catm";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable =
-          if architecture.base == "AArch64"
-          then hex1.package
-          else hex2-0.package;
+          executable = if architecture.base == "AArch64" then hex1.package else hex2-0.package;
 
-        args =
-          if architecture.base == "AArch64"
-          then [
-            "${sources.base}/catm_${architecture.base}.hex1"
-            (builtins.placeholder "out")
-          ]
-          else [
-            "${sources.base}/catm_${architecture.base}.hex2"
-            (builtins.placeholder "out")
-          ];
-      });
+          args =
+            if architecture.base == "AArch64" then
+              [
+                "${sources.base}/catm_${architecture.base}.hex1"
+                (builtins.placeholder "out")
+              ]
+            else
+              [
+                "${sources.base}/catm_${architecture.base}.hex2"
+                (builtins.placeholder "out")
+              ];
+        }
+      );
     };
   };
 }

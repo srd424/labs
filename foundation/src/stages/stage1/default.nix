@@ -1,11 +1,10 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   includes = [
     ./nyacc
     ./mes

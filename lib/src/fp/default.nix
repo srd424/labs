@@ -20,22 +20,26 @@ lib: {
     ## order they are provided.
     ##
     ## @type (List (Any -> Any)) -> Any -> Any
-    pipe = fs: (
-      x: builtins.foldl' (value: f: f value) x fs
-    );
+    pipe = fs: (x: builtins.foldl' (value: f: f value) x fs);
 
     ## Reverse the order of arguments to a function that has two parameters.
     ##
     ## @type (a -> b -> c) -> b -> a -> c
-    flip2 = f: a: b: f b a;
+    flip2 =
+      f: a: b:
+      f b a;
     ## Reverse the order of arguments to a function that has three parameters.
     ##
     ## @type (a -> b -> c -> d) -> c -> b -> a -> d
-    flip3 = f: a: b: c: f c b a;
+    flip3 =
+      f: a: b: c:
+      f c b a;
     ## Reverse the order of arguments to a function that has four parameters.
     ##
     ## @type (a -> b -> c -> d -> e) -> d -> c -> b -> a -> e
-    flip4 = f: a: b: c: d: f d c b a;
+    flip4 =
+      f: a: b: c: d:
+      f d c b a;
 
     ## Get the arguments of a function or functor.
     ## An attribute set is returned with the arguments as keys. The values
@@ -43,23 +47,18 @@ lib: {
     ## when it does not.
     ##
     ## @type Function -> Attrs
-    args = f:
-      if f ? __functor
-      then f.__args__ or (lib.fp.args (f.__functor f))
-      else builtins.functionArgs f;
+    args =
+      f: if f ? __functor then f.__args__ or (lib.fp.args (f.__functor f)) else builtins.functionArgs f;
 
     ## Create a function that is called with only the arguments it specifies.
     ##
     ## @type Attrs a => (a -> b) -> a -> b
-    withDynamicArgs = f: args: let
-      fArgs = lib.fp.args f;
-      common = builtins.intersectAttrs fArgs args;
-    in
-      if builtins.isAttrs args
-      then
-        if fArgs == {}
-        then f args
-        else f common
-      else f args;
+    withDynamicArgs =
+      f: args:
+      let
+        fArgs = lib.fp.args f;
+        common = builtins.intersectAttrs fArgs args;
+      in
+      if builtins.isAttrs args then if fArgs == { } then f args else f common else f args;
   };
 }

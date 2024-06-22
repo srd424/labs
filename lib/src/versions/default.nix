@@ -28,25 +28,31 @@ lib: {
     ## Get the major version from a version string.
     ##
     ## @type String -> String
-    major = version: let
-      parts = builtins.splitVersion version;
-    in
+    major =
+      version:
+      let
+        parts = builtins.splitVersion version;
+      in
       builtins.elemAt parts 0;
 
     ## Get the minor version from a version string.
     ##
     ## @type String -> String
-    minor = version: let
-      parts = builtins.splitVersion version;
-    in
+    minor =
+      version:
+      let
+        parts = builtins.splitVersion version;
+      in
       builtins.elemAt parts 1;
 
     ## Get the patch version from a version string.
     ##
     ## @type String -> String
-    patch = version: let
-      parts = builtins.splitVersion version;
-    in
+    patch =
+      version:
+      let
+        parts = builtins.splitVersion version;
+      in
       builtins.elemAt parts 2;
   };
 }

@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.python;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.python = {
     meta = {
       description = lib.options.create {
@@ -33,7 +32,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -62,16 +61,17 @@ in {
         sha256 = "eVw09E30Wg6blxDIxxwVxnGHFSTNQSyhTe8hLozLFV0=";
       };
 
-      package = let
-        patches = [
-          # Disable the use of ldconfig in ctypes.util.find_library (since
-          # ldconfig doesn't work on NixOS), and don't use
-          # ctypes.util.find_library during the loading of the uuid module
-          # (since it will do a futile invocation of gcc (!) to find
-          # libuuid, slowing down program startup a lot).
-          ./patches/no-ldconfig.patch
-        ];
-      in
+      package =
+        let
+          patches = [
+            # Disable the use of ldconfig in ctypes.util.find_library (since
+            # ldconfig doesn't work on NixOS), and don't use
+            # ctypes.util.find_library during the loading of the uuid module
+            # (since it will do a futile invocation of gcc (!) to find
+            # libuuid, slowing down program startup a lot).
+            ./patches/no-ldconfig.patch
+          ];
+        in
         builders.bash.build {
           name = "python-${cfg.version}";
           meta = cfg.meta;

@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage0.kaem;
 
   system = config.aux.system;
@@ -10,7 +8,8 @@
   kaem-unwrapped = config.aux.foundation.stages.stage0.kaem-unwrapped;
   mescc-tools = config.aux.foundation.stages.stage0.mescc-tools;
   mescc-tools-extra = config.aux.foundation.stages.stage0.mescc-tools-extra;
-in {
+in
+{
   options.aux.foundation.stages.stage0.kaem = {
     meta = {
       description = lib.options.create {
@@ -35,7 +34,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -47,24 +46,26 @@ in {
 
   config = {
     aux.foundation.stages.stage0.kaem = {
-      package = lib.modules.overrides.default (builders.raw.build {
-        pname = "kaem";
-        version = "1.6.0";
+      package = lib.modules.overrides.default (
+        builders.raw.build {
+          pname = "kaem";
+          version = "1.6.0";
 
-        meta = cfg.meta;
+          meta = cfg.meta;
 
-        executable = kaem-unwrapped.package;
+          executable = kaem-unwrapped.package;
 
-        args = [
-          "--verbose"
-          "--strict"
-          "--file"
-          ./build.kaem
-        ];
+          args = [
+            "--verbose"
+            "--strict"
+            "--file"
+            ./build.kaem
+          ];
 
-        kaemUnwrapped = kaem-unwrapped.package;
-        PATH = lib.paths.bin [mescc-tools-extra.package];
-      });
+          kaemUnwrapped = kaem-unwrapped.package;
+          PATH = lib.paths.bin [ mescc-tools-extra.package ];
+        }
+      );
     };
   };
 }

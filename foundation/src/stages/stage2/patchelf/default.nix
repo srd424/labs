@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.patchelf;
 
   platform = config.aux.platform;
@@ -9,7 +7,8 @@
 
   stage1 = config.aux.foundation.stages.stage1;
   stage2 = config.aux.foundation.stages.stage2;
-in {
+in
+{
   options.aux.foundation.stages.stage2.patchelf = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 

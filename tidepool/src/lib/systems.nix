@@ -1,33 +1,34 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   lib' = config.lib;
   types = config.lib.systems.types;
 
-  setTypes = type: let
-    assign = name: value:
-      assert lib.errors.trace (type.check value) "${name} is not of type ${type.name}: ${lib.generators.pretty {} value}";
-        lib.types.set type.name ({inherit name;} // value);
-  in
+  setTypes =
+    type:
+    let
+      assign =
+        name: value:
+        assert lib.errors.trace (type.check value)
+          "${name} is not of type ${type.name}: ${lib.generators.pretty { } value}";
+        lib.types.set type.name ({ inherit name; } // value);
+    in
     builtins.mapAttrs assign;
 
-  matchAnyAttrs = patterns:
-    if builtins.isList patterns
-    then
+  matchAnyAttrs =
+    patterns:
+    if builtins.isList patterns then
       value:
-        builtins.any (pattern:
-          if builtins.isFunction pattern
-          then pattern value
-          else matchAnyAttrs pattern value)
-        patterns
-    else lib.attrs.match patterns;
+      builtins.any (
+        pattern: if builtins.isFunction pattern then pattern value else matchAnyAttrs pattern value
+      ) patterns
+    else
+      lib.attrs.match patterns;
 
-  getDoubles = predicate:
-    builtins.map
-    lib'.systems.into.double
-    (builtins.filter predicate lib'.systems.doubles.all);
-in {
+  getDoubles =
+    predicate:
+    builtins.map lib'.systems.into.double (builtins.filter predicate lib'.systems.doubles.all);
+in
+{
   config = {
     lib.systems = {
       match = builtins.mapAttrs (lib.fp.const matchAnyAttrs) lib'.systems.patterns;
@@ -88,7 +89,7 @@ in {
               UBIFS_FS_ZLIB y
               UBIFS_FS_DEBUG n
             '';
-            makeFlags = ["LOADADDR=0x8000"];
+            makeFlags = [ "LOADADDR=0x8000" ];
             target = "uImage";
             # TODO reenable once manual-config's config actually builds a .dtb and this is checked to be working
             #DTB = true;
@@ -202,7 +203,7 @@ in {
               KGDB_SERIAL_CONSOLE y
               KGDB_KDB y
             '';
-            makeFlags = ["LOADADDR=0x0200000"];
+            makeFlags = [ "LOADADDR=0x0200000" ];
             target = "uImage";
             DTB = true; # Beyond 3.10
           };
@@ -290,7 +291,7 @@ in {
               UBIFS_FS_ZLIB y
               UBIFS_FS_DEBUG n
             '';
-            makeFlags = ["LOADADDR=0x10800000"];
+            makeFlags = [ "LOADADDR=0x10800000" ];
             target = "uImage";
             DTB = true;
           };
@@ -599,130 +600,392 @@ in {
           };
         };
 
-        mipsel-linux-gnu =
-          {
-            triple = "mipsel-unknown-linux-gnu";
-          }
-          // lib'.systems.platforms.gcc_mips32r2_o32;
+        mipsel-linux-gnu = {
+          triple = "mipsel-unknown-linux-gnu";
+        } // lib'.systems.platforms.gcc_mips32r2_o32;
 
         # This function takes a minimally-valid "platform" and returns an
         # attrset containing zero or more additional attrs which should be
         # included in the platform in order to further elaborate it.
-        select = platform:
-        # x86
-        /**/
-          if platform.isx86
-          then lib'.systems.platforms.pc
+        select =
+          platform:
+          # x86
+          if platform.isx86 then
+            lib'.systems.platforms.pc
           # ARM
-          else if platform.isAarch32
-          then let
-            version = platform.system.cpu.version or null;
-          in
-            if version == null
-            then lib'.systems.platforms.pc
-            else if lib.versions.gte "6" version
-            then lib'.systems.platforms.sheevaplug
-            else if lib.versions.gte "7" version
-            then lib'.systems.platforms.raspberrypi
-            else lib'.systems.platforms.armv7l-hf-multiplatform
-          else if platform.isAarch64
-          then
-            if platform.isDarwin
-            then lib'.systems.platforms.apple-m1
-            else lib'.systems.platforms.aarch64-multiplatform
-          else if platform.isRiscV
-          then lib'.systems.platforms.riscv-multiplatform
-          else if platform.system.cpu == types.cpus.mipsel
-          then lib'.systems.platforms.mipsel-linux-gnu
-          else if platform.system.cpu == types.cpus.powerpc64le
-          then lib'.systems.platforms.powernv
-          else {};
+          else if platform.isAarch32 then
+            let
+              version = platform.system.cpu.version or null;
+            in
+            if version == null then
+              lib'.systems.platforms.pc
+            else if lib.versions.gte "6" version then
+              lib'.systems.platforms.sheevaplug
+            else if lib.versions.gte "7" version then
+              lib'.systems.platforms.raspberrypi
+            else
+              lib'.systems.platforms.armv7l-hf-multiplatform
+          else if platform.isAarch64 then
+            if platform.isDarwin then
+              lib'.systems.platforms.apple-m1
+            else
+              lib'.systems.platforms.aarch64-multiplatform
+          else if platform.isRiscV then
+            lib'.systems.platforms.riscv-multiplatform
+          else if platform.system.cpu == types.cpus.mipsel then
+            lib'.systems.platforms.mipsel-linux-gnu
+          else if platform.system.cpu == types.cpus.powerpc64le then
+            lib'.systems.platforms.powernv
+          else
+            { };
       };
 
       architectures = {
         features = {
           # x86_64 Generic
           # Spec: https://gitlab.com/x86-psABIs/x86-64-ABI/
-          default = [];
-          x86-64 = [];
-          x86-64-v2 = ["sse3" "ssse3" "sse4_1" "sse4_2"];
-          x86-64-v3 = ["sse3" "ssse3" "sse4_1" "sse4_2" "avx" "avx2" "fma"];
-          x86-64-v4 = ["sse3" "ssse3" "sse4_1" "sse4_2" "avx" "avx2" "avx512" "fma"];
+          default = [ ];
+          x86-64 = [ ];
+          x86-64-v2 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+          ];
+          x86-64-v3 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          x86-64-v4 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
           # x86_64 Intel
-          nehalem = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes"];
-          westmere = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes"];
-          sandybridge = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx"];
-          ivybridge = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx"];
-          haswell = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "fma"];
-          broadwell = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "fma"];
-          skylake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "fma"];
-          skylake-avx512 = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          cannonlake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          icelake-client = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          icelake-server = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          cascadelake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          cooperlake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          tigerlake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "avx512" "fma"];
-          alderlake = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx" "avx2" "fma"];
+          nehalem = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+          ];
+          westmere = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+          ];
+          sandybridge = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+          ];
+          ivybridge = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+          ];
+          haswell = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          broadwell = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          skylake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          skylake-avx512 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          cannonlake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          icelake-client = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          icelake-server = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          cascadelake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          cooperlake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          tigerlake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
+          alderlake = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
           # x86_64 AMD
-          btver1 = ["sse3" "ssse3" "sse4_1" "sse4_2"];
-          btver2 = ["sse3" "ssse3" "sse4_1" "sse4_2" "aes" "avx"];
-          bdver1 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "fma" "fma4"];
-          bdver2 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "fma" "fma4"];
-          bdver3 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "fma" "fma4"];
-          bdver4 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "avx2" "fma" "fma4"];
-          znver1 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "avx2" "fma"];
-          znver2 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "avx2" "fma"];
-          znver3 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "avx2" "fma"];
-          znver4 = ["sse3" "ssse3" "sse4_1" "sse4_2" "sse4a" "aes" "avx" "avx2" "avx512" "fma"];
+          btver1 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+          ];
+          btver2 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "aes"
+            "avx"
+          ];
+          bdver1 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "fma"
+            "fma4"
+          ];
+          bdver2 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "fma"
+            "fma4"
+          ];
+          bdver3 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "fma"
+            "fma4"
+          ];
+          bdver4 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+            "fma4"
+          ];
+          znver1 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          znver2 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          znver3 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "avx2"
+            "fma"
+          ];
+          znver4 = [
+            "sse3"
+            "ssse3"
+            "sse4_1"
+            "sse4_2"
+            "sse4a"
+            "aes"
+            "avx"
+            "avx2"
+            "avx512"
+            "fma"
+          ];
           # other
-          armv5te = [];
-          armv6 = [];
-          armv7-a = [];
-          armv8-a = [];
-          mips32 = [];
-          loongson2f = [];
+          armv5te = [ ];
+          armv6 = [ ];
+          armv7-a = [ ];
+          armv8-a = [ ];
+          mips32 = [ ];
+          loongson2f = [ ];
         };
 
         # a superior CPU has all the features of an inferior and is able to build and test code for it
         inferiors = {
           # x86_64 Generic
-          default = [];
-          x86-64 = [];
-          x86-64-v2 = ["x86-64"];
-          x86-64-v3 = ["x86-64-v2"] ++ lib'.systems.architectures.inferiors.x86-64-v2;
-          x86-64-v4 = ["x86-64-v3"] ++ lib'.systems.architectures.inferiors.x86-64-v3;
+          default = [ ];
+          x86-64 = [ ];
+          x86-64-v2 = [ "x86-64" ];
+          x86-64-v3 = [ "x86-64-v2" ] ++ lib'.systems.architectures.inferiors.x86-64-v2;
+          x86-64-v4 = [ "x86-64-v3" ] ++ lib'.systems.architectures.inferiors.x86-64-v3;
 
           # x86_64 Intel
           # https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
-          nehalem = ["x86-64-v2"] ++ lib'.systems.architectures.inferiors.x86-64-v2;
-          westmere = ["nehalem"] ++ lib'.systems.architectures.inferiors.nehalem;
-          sandybridge = ["westmere"] ++ lib'.systems.architectures.inferiors.westmere;
-          ivybridge = ["sandybridge"] ++ lib'.systems.architectures.inferiors.sandybridge;
+          nehalem = [ "x86-64-v2" ] ++ lib'.systems.architectures.inferiors.x86-64-v2;
+          westmere = [ "nehalem" ] ++ lib'.systems.architectures.inferiors.nehalem;
+          sandybridge = [ "westmere" ] ++ lib'.systems.architectures.inferiors.westmere;
+          ivybridge = [ "sandybridge" ] ++ lib'.systems.architectures.inferiors.sandybridge;
 
-          haswell = lib.unique (["ivybridge" "x86-64-v3"] ++ lib'.systems.architectures.inferiors.ivybridge ++ lib'.systems.architectures.inferiors.x86-64-v3);
-          broadwell = ["haswell"] ++ lib'.systems.architectures.inferiors.haswell;
-          skylake = ["broadwell"] ++ lib'.systems.architectures.inferiors.broadwell;
+          haswell = lib.unique (
+            [
+              "ivybridge"
+              "x86-64-v3"
+            ]
+            ++ lib'.systems.architectures.inferiors.ivybridge
+            ++ lib'.systems.architectures.inferiors.x86-64-v3
+          );
+          broadwell = [ "haswell" ] ++ lib'.systems.architectures.inferiors.haswell;
+          skylake = [ "broadwell" ] ++ lib'.systems.architectures.inferiors.broadwell;
 
-          skylake-avx512 = lib.unique (["skylake" "x86-64-v4"] ++ lib'.systems.architectures.inferiors.skylake ++ lib'.systems.architectures.inferiors.x86-64-v4);
-          cannonlake = ["skylake-avx512"] ++ lib'.systems.architectures.inferiors.skylake-avx512;
-          icelake-client = ["cannonlake"] ++ lib'.systems.architectures.inferiors.cannonlake;
-          icelake-server = ["icelake-client"] ++ lib'.systems.architectures.inferiors.icelake-client;
-          cascadelake = ["cannonlake"] ++ lib'.systems.architectures.inferiors.cannonlake;
-          cooperlake = ["cascadelake"] ++ lib'.systems.architectures.inferiors.cascadelake;
-          tigerlake = ["icelake-server"] ++ lib'.systems.architectures.inferiors.icelake-server;
+          skylake-avx512 = lib.unique (
+            [
+              "skylake"
+              "x86-64-v4"
+            ]
+            ++ lib'.systems.architectures.inferiors.skylake
+            ++ lib'.systems.architectures.inferiors.x86-64-v4
+          );
+          cannonlake = [ "skylake-avx512" ] ++ lib'.systems.architectures.inferiors.skylake-avx512;
+          icelake-client = [ "cannonlake" ] ++ lib'.systems.architectures.inferiors.cannonlake;
+          icelake-server = [ "icelake-client" ] ++ lib'.systems.architectures.inferiors.icelake-client;
+          cascadelake = [ "cannonlake" ] ++ lib'.systems.architectures.inferiors.cannonlake;
+          cooperlake = [ "cascadelake" ] ++ lib'.systems.architectures.inferiors.cascadelake;
+          tigerlake = [ "icelake-server" ] ++ lib'.systems.architectures.inferiors.icelake-server;
 
           # CX16 does not exist on alderlake, while it does on nearly all other intel CPUs
-          alderlake = [];
+          alderlake = [ ];
 
           # x86_64 AMD
           # TODO: fill this (need testing)
-          btver1 = [];
-          btver2 = [];
-          bdver1 = [];
-          bdver2 = [];
-          bdver3 = [];
-          bdver4 = [];
+          btver1 = [ ];
+          btver2 = [ ];
+          bdver1 = [ ];
+          bdver2 = [ ];
+          bdver3 = [ ];
+          bdver4 = [ ];
           # Regarding `skylake` as inferior of `znver1`, there are reports of
           # successful usage by Gentoo users and Phoronix benchmarking of different
           # `-march` targets.
@@ -742,86 +1005,155 @@ in {
           # https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
           # https://en.wikichip.org/wiki/amd/microarchitectures/zen
           # https://en.wikichip.org/wiki/intel/microarchitectures/skylake
-          znver1 = ["skylake"] ++ lib'.systems.architectures.inferiors.skylake; # Includes haswell and x86-64-v3
-          znver2 = ["znver1"] ++ lib'.systems.architectures.inferiors.znver1;
-          znver3 = ["znver2"] ++ lib'.systems.architectures.inferiors.znver2;
-          znver4 = lib.unique (["znver3" "x86-64-v4"] ++ lib'.systems.architectures.inferiors.znver3 ++ lib'.systems.architectures.inferiors.x86-64-v4);
+          znver1 = [ "skylake" ] ++ lib'.systems.architectures.inferiors.skylake; # Includes haswell and x86-64-v3
+          znver2 = [ "znver1" ] ++ lib'.systems.architectures.inferiors.znver1;
+          znver3 = [ "znver2" ] ++ lib'.systems.architectures.inferiors.znver2;
+          znver4 = lib.unique (
+            [
+              "znver3"
+              "x86-64-v4"
+            ]
+            ++ lib'.systems.architectures.inferiors.znver3
+            ++ lib'.systems.architectures.inferiors.x86-64-v4
+          );
 
           # other
-          armv5te = [];
-          armv6 = [];
-          armv7-a = [];
-          armv8-a = [];
-          mips32 = [];
-          loongson2f = [];
+          armv5te = [ ];
+          armv6 = [ ];
+          armv7-a = [ ];
+          armv8-a = [ ];
+          mips32 = [ ];
+          loongson2f = [ ];
         };
       };
 
       validate = {
-        architecture = let
-          isSupported = feature: x:
-            builtins.elem feature (lib'.systems.architectures.features.${x} or []);
-        in {
-          sse3Support = isSupported "sse3";
-          ssse3Support = isSupported "ssse3";
-          sse4_1Support = isSupported "sse4_1";
-          sse4_2Support = isSupported "sse4_2";
-          sse4_aSupport = isSupported "sse4a";
-          avxSupport = isSupported "avx";
-          avx2Support = isSupported "avx2";
-          avx512Support = isSupported "avx512";
-          aesSupport = isSupported "aes";
-          fmaSupport = isSupported "fma";
-          fma4Support = isSupported "fma4";
-        };
+        architecture =
+          let
+            isSupported = feature: x: builtins.elem feature (lib'.systems.architectures.features.${x} or [ ]);
+          in
+          {
+            sse3Support = isSupported "sse3";
+            ssse3Support = isSupported "ssse3";
+            sse4_1Support = isSupported "sse4_1";
+            sse4_2Support = isSupported "sse4_2";
+            sse4_aSupport = isSupported "sse4a";
+            avxSupport = isSupported "avx";
+            avx2Support = isSupported "avx2";
+            avx512Support = isSupported "avx512";
+            aesSupport = isSupported "aes";
+            fmaSupport = isSupported "fma";
+            fma4Support = isSupported "fma4";
+          };
 
-        compatible = a: b:
+        compatible =
+          a: b:
           lib.any lib.id [
             # x86
-            (b == lib'.systems.types.cpus.i386 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i486)
-            (b == lib'.systems.types.cpus.i486 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i586)
-            (b == lib'.systems.types.cpus.i586 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i686)
+            (
+              b == lib'.systems.types.cpus.i386 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i486
+            )
+            (
+              b == lib'.systems.types.cpus.i486 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i586
+            )
+            (
+              b == lib'.systems.types.cpus.i586 && lib'.systems.validate.compatible a lib'.systems.types.cpus.i686
+            )
 
             # XXX: Not true in some cases. Like in WSL mode.
-            (b == lib'.systems.types.cpus.i686 && lib'.systems.validate.compatible a lib'.systems.types.cpus.x86_64)
+            (
+              b == lib'.systems.types.cpus.i686
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.x86_64
+            )
 
             # ARMv4
-            (b == lib'.systems.types.cpus.arm && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv5tel)
+            (
+              b == lib'.systems.types.cpus.arm
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv5tel
+            )
 
             # ARMv5
-            (b == lib'.systems.types.cpus.armv5tel && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv6l)
+            (
+              b == lib'.systems.types.cpus.armv5tel
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv6l
+            )
 
             # ARMv6
-            (b == lib'.systems.types.cpus.armv6l && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv6m)
-            (b == lib'.systems.types.cpus.armv6m && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7l)
+            (
+              b == lib'.systems.types.cpus.armv6l
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv6m
+            )
+            (
+              b == lib'.systems.types.cpus.armv6m
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7l
+            )
 
             # ARMv7
-            (b == lib'.systems.types.cpus.armv7l && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7a)
-            (b == lib'.systems.types.cpus.armv7l && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7r)
-            (b == lib'.systems.types.cpus.armv7l && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7m)
+            (
+              b == lib'.systems.types.cpus.armv7l
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7a
+            )
+            (
+              b == lib'.systems.types.cpus.armv7l
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7r
+            )
+            (
+              b == lib'.systems.types.cpus.armv7l
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv7m
+            )
 
             # ARMv8
             (b == lib'.systems.types.cpus.aarch64 && a == lib'.systems.types.cpus.armv8a)
-            (b == lib'.systems.types.cpus.armv8a && lib'.systems.validate.compatible a lib'.systems.types.cpus.aarch64)
-            (b == lib'.systems.types.cpus.armv8r && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv8a)
-            (b == lib'.systems.types.cpus.armv8m && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv8a)
+            (
+              b == lib'.systems.types.cpus.armv8a
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.aarch64
+            )
+            (
+              b == lib'.systems.types.cpus.armv8r
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv8a
+            )
+            (
+              b == lib'.systems.types.cpus.armv8m
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.armv8a
+            )
 
             # PowerPC
-            (b == lib'.systems.types.cpus.powerpc && lib'.systems.validate.compatible a lib'.systems.types.cpus.powerpc64)
-            (b == lib'.systems.types.cpus.powerpcle && lib'.systems.validate.compatible a lib'.systems.types.cpus.powerpc64le)
+            (
+              b == lib'.systems.types.cpus.powerpc
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.powerpc64
+            )
+            (
+              b == lib'.systems.types.cpus.powerpcle
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.powerpc64le
+            )
 
             # MIPS
-            (b == lib'.systems.types.cpus.mips && lib'.systems.validate.compatible a lib'.systems.types.cpus.mips64)
-            (b == lib'.systems.types.cpus.mipsel && lib'.systems.validate.compatible a lib'.systems.types.cpus.mips64el)
+            (
+              b == lib'.systems.types.cpus.mips
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.mips64
+            )
+            (
+              b == lib'.systems.types.cpus.mipsel
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.mips64el
+            )
 
             # RISCV
-            (b == lib'.systems.types.cpus.riscv32 && lib'.systems.validate.compatible a lib'.systems.types.cpus.riscv64)
+            (
+              b == lib'.systems.types.cpus.riscv32
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.riscv64
+            )
 
             # SPARC
-            (b == lib'.systems.types.cpus.sparc && lib'.systems.validate.compatible a lib'.systems.types.cpus.sparc64)
+            (
+              b == lib'.systems.types.cpus.sparc
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.sparc64
+            )
 
             # WASM
-            (b == lib'.systems.types.cpus.wasm32 && lib'.systems.validate.compatible a lib'.systems.types.cpus.wasm64)
+            (
+              b == lib'.systems.types.cpus.wasm32
+              && lib'.systems.validate.compatible a lib'.systems.types.cpus.wasm64
+            )
 
             # identity
             (b == a)
@@ -840,13 +1172,8 @@ in {
             name = "Cpu";
             description = "Instruction set architecture name and information";
             merge = lib.options.merge.one;
-            check = x:
-              types.bits.check x.bits
-              && (
-                if 8 < x.bits
-                then types.endian.check x.endian
-                else !(x ? endian)
-              );
+            check =
+              x: types.bits.check x.bits && (if 8 < x.bits then types.endian.check x.endian else !(x ? endian));
           };
 
           family = lib.types.create {
@@ -865,9 +1192,9 @@ in {
             name = "Kernel";
             description = "Kernel name and information";
             merge = lib.options.merge.one;
-            check = value:
-              types.exec.check value.exec
-              && builtins.all types.family.check (builtins.attrValues value.families);
+            check =
+              value:
+              types.exec.check value.exec && builtins.all types.family.check (builtins.attrValues value.families);
           };
 
           abi = lib.types.create {
@@ -887,12 +1214,13 @@ in {
           name = "system";
           description = "fully parsed representation of llvm- or nix-style platform tuple";
           merge = lib.options.merge.one;
-          check = {
-            cpu,
-            vendor,
-            kernel,
-            abi,
-          }:
+          check =
+            {
+              cpu,
+              vendor,
+              kernel,
+              abi,
+            }:
             types.cpu.check cpu
             && types.vendor.check vendor
             && types.kernel.check kernel
@@ -902,43 +1230,49 @@ in {
         endian = lib.types.enum (builtins.attrValues types.endians);
 
         endians = setTypes types.generic.endian {
-          big = {};
-          little = {};
+          big = { };
+          little = { };
         };
 
-        bits = lib.types.enum [8 16 32 64 128];
+        bits = lib.types.enum [
+          8
+          16
+          32
+          64
+          128
+        ];
 
         exec = lib.types.enum (builtins.attrValues types.execs);
 
         execs = setTypes types.generic.exec {
-          aout = {}; # a.out
-          elf = {};
-          macho = {};
-          pe = {};
-          wasm = {};
-          unknown = {};
+          aout = { }; # a.out
+          elf = { };
+          macho = { };
+          pe = { };
+          wasm = { };
+          unknown = { };
         };
 
         vendor = lib.types.enum (builtins.attrValues types.vendors);
 
         vendors = setTypes types.generic.vendor {
-          apple = {};
-          pc = {};
-          knuth = {};
+          apple = { };
+          pc = { };
+          knuth = { };
 
           # Actually matters, unlocking some MinGW-w64-specific options in GCC. See
           # bottom of https://sourceforge.net/p/mingw-w64/wiki2/Unicode%20apps/
-          w64 = {};
+          w64 = { };
 
-          none = {};
-          unknown = {};
+          none = { };
+          unknown = { };
         };
 
         family = lib.types.enum (builtins.attrValues types.families);
 
         families = setTypes types.generic.family {
-          bsd = {};
-          darwin = {};
+          bsd = { };
+          darwin = { };
         };
 
         kernel = lib.types.enum (builtins.attrValues types.kernels);
@@ -955,66 +1289,76 @@ in {
           };
           ios = {
             exec = types.execs.macho;
-            families = {darwin = types.families.darwin;};
+            families = {
+              darwin = types.families.darwin;
+            };
           };
           # A tricky thing about FreeBSD is that there is no stable ABI across
           # versions. That means that putting in the version as part of the
           # config string is paramount.
           freebsd12 = {
             exec = types.execs.elf;
-            families = {bsd = types.families.bsd;};
+            families = {
+              bsd = types.families.bsd;
+            };
             name = "freebsd";
             version = 12;
           };
           freebsd13 = {
             exec = types.execs.elf;
-            families = {bsd = types.families.bsd;};
+            families = {
+              bsd = types.families.bsd;
+            };
             name = "freebsd";
             version = 13;
           };
           linux = {
             exec = types.execs.elf;
-            families = {};
+            families = { };
           };
           netbsd = {
             exec = types.execs.elf;
-            families = {bsd = types.families.bsd;};
+            families = {
+              bsd = types.families.bsd;
+            };
           };
           none = {
             exec = types.execs.unknown;
-            families = {};
+            families = { };
           };
           openbsd = {
             exec = types.execs.elf;
-            families = {bsd = types.families.bsd;};
+            families = {
+              bsd = types.families.bsd;
+            };
           };
           solaris = {
             exec = types.execs.elf;
-            families = {};
+            families = { };
           };
           wasi = {
             exec = types.execs.wasm;
-            families = {};
+            families = { };
           };
           redox = {
             exec = types.execs.elf;
-            families = {};
+            families = { };
           };
           windows = {
             exec = types.execs.pe;
-            families = {};
+            families = { };
           };
           ghcjs = {
             exec = types.execs.unknown;
-            families = {};
+            families = { };
           };
           genode = {
             exec = types.execs.elf;
-            families = {};
+            families = { };
           };
           mmixware = {
             exec = types.execs.unknown;
-            families = {};
+            families = { };
           };
 
           # aliases
@@ -1307,19 +1651,23 @@ in {
         abi = lib.types.enum (builtins.attrValues types.abis);
 
         abis = setTypes types.generic.abi {
-          cygnus = {};
-          msvc = {};
+          cygnus = { };
+          msvc = { };
 
           # Note: eabi is specific to ARM and PowerPC.
           # On PowerPC, this corresponds to PPCEABI.
           # On ARM, this corresponds to ARMEABI.
-          eabi = {float = "soft";};
-          eabihf = {float = "hard";};
+          eabi = {
+            float = "soft";
+          };
+          eabihf = {
+            float = "hard";
+          };
 
           # Other architectures should use ELF in embedded situations.
-          elf = {};
+          elf = { };
 
-          androideabi = {};
+          androideabi = { };
           android = {
             assertions = [
               {
@@ -1331,8 +1679,12 @@ in {
             ];
           };
 
-          gnueabi = {float = "soft";};
-          gnueabihf = {float = "hard";};
+          gnueabi = {
+            float = "soft";
+          };
+          gnueabihf = {
+            float = "hard";
+          };
           gnu = {
             assertions = [
               {
@@ -1349,208 +1701,259 @@ in {
               }
             ];
           };
-          gnuabi64 = {abi = "64";};
-          muslabi64 = {abi = "64";};
+          gnuabi64 = {
+            abi = "64";
+          };
+          muslabi64 = {
+            abi = "64";
+          };
 
           # NOTE: abi=n32 requires a 64-bit MIPS chip!  That is not a typo.
           # It is basically the 64-bit abi with 32-bit pointers.  Details:
           # https://www.linux-mips.org/pub/linux/mips/doc/ABI/MIPS-N32-ABI-Handbook.pdf
-          gnuabin32 = {abi = "n32";};
-          muslabin32 = {abi = "n32";};
+          gnuabin32 = {
+            abi = "n32";
+          };
+          muslabin32 = {
+            abi = "n32";
+          };
 
-          gnuabielfv2 = {abi = "elfv2";};
-          gnuabielfv1 = {abi = "elfv1";};
+          gnuabielfv2 = {
+            abi = "elfv2";
+          };
+          gnuabielfv1 = {
+            abi = "elfv1";
+          };
 
-          musleabi = {float = "soft";};
-          musleabihf = {float = "hard";};
-          musl = {};
+          musleabi = {
+            float = "soft";
+          };
+          musleabihf = {
+            float = "hard";
+          };
+          musl = { };
 
-          uclibceabi = {float = "soft";};
-          uclibceabihf = {float = "hard";};
-          uclibc = {};
+          uclibceabi = {
+            float = "soft";
+          };
+          uclibceabihf = {
+            float = "hard";
+          };
+          uclibc = { };
 
-          unknown = {};
+          unknown = { };
         };
       };
 
       from = {
-        string = value: let
-          parts = lib.strings.split "-" value;
-          skeleton = lib'.systems.skeleton parts;
-          system = lib'.systems.create (lib'.systems.from.skeleton skeleton);
-        in
+        string =
+          value:
+          let
+            parts = lib.strings.split "-" value;
+            skeleton = lib'.systems.skeleton parts;
+            system = lib'.systems.create (lib'.systems.from.skeleton skeleton);
+          in
           system;
 
-        skeleton = spec @ {
-          cpu,
-          vendor ? assert false; null,
-          kernel,
-          abi ? assert false; null,
-        }: let
-          getCpu = name: types.cpus.${name} or (throw "Unknown CPU type: ${name}");
-          getVendor = name: types.vendors.${name} or (throw "Unknown vendor: ${name}");
-          getKernel = name: types.kernels.${name} or (throw "Unknown kernel: ${name}");
-          getAbi = name: types.abis.${name} or (throw "Unknown ABI: ${name}");
+        skeleton =
+          spec@{
+            cpu,
+            vendor ?
+              assert false;
+              null,
+            kernel,
+            abi ?
+              assert false;
+              null,
+          }:
+          let
+            getCpu = name: types.cpus.${name} or (throw "Unknown CPU type: ${name}");
+            getVendor = name: types.vendors.${name} or (throw "Unknown vendor: ${name}");
+            getKernel = name: types.kernels.${name} or (throw "Unknown kernel: ${name}");
+            getAbi = name: types.abis.${name} or (throw "Unknown ABI: ${name}");
 
-          resolved = {
-            cpu = getCpu spec.cpu;
+            resolved = {
+              cpu = getCpu spec.cpu;
 
-            vendor =
-              if spec ? vendor
-              then getVendor spec.vendor
-              else if lib'.systems.match.isDarwin resolved
-              then types.vendors.apple
-              else if lib'.systems.match.isWindows resolved
-              then types.vendors.pc
-              else types.vendors.unknown;
+              vendor =
+                if spec ? vendor then
+                  getVendor spec.vendor
+                else if lib'.systems.match.isDarwin resolved then
+                  types.vendors.apple
+                else if lib'.systems.match.isWindows resolved then
+                  types.vendors.pc
+                else
+                  types.vendors.unknown;
 
-            kernel =
-              if lib.strings.hasPrefix "darwin" spec.kernel
-              then getKernel "darwin"
-              else if lib.strings.hasPrefix "netbsd" spec.kernel
-              then getKernel "netbsd"
-              else getKernel spec.kernel;
+              kernel =
+                if lib.strings.hasPrefix "darwin" spec.kernel then
+                  getKernel "darwin"
+                else if lib.strings.hasPrefix "netbsd" spec.kernel then
+                  getKernel "netbsd"
+                else
+                  getKernel spec.kernel;
 
-            abi =
-              if spec ? abi
-              then getAbi spec.abi
-              else if lib'.systems.match.isLinux resolved || lib'.systems.match.isWindows resolved
-              then
-                if lib'.systems.match.isAarch32 resolved
-                then
-                  if lib.versions.gte "6" (resolved.cpu.version)
-                  then types.abis.gnueabihf
-                  else types.abis.gnueabi
-                else if lib'.systems.match.isPower64 resolved && lib'.systems.match.isBigEndian resolved
-                then types.abis.gnuabielfv2
-                else types.abis.gnu
-              else types.abis.unknown;
-          };
-        in
+              abi =
+                if spec ? abi then
+                  getAbi spec.abi
+                else if lib'.systems.match.isLinux resolved || lib'.systems.match.isWindows resolved then
+                  if lib'.systems.match.isAarch32 resolved then
+                    if lib.versions.gte "6" (resolved.cpu.version) then types.abis.gnueabihf else types.abis.gnueabi
+                  else if lib'.systems.match.isPower64 resolved && lib'.systems.match.isBigEndian resolved then
+                    types.abis.gnuabielfv2
+                  else
+                    types.abis.gnu
+                else
+                  types.abis.unknown;
+            };
+          in
           resolved;
       };
 
       into = {
-        double = {
-          cpu,
-          kernel,
-          abi,
-          ...
-        }: let
-          kernelName = kernel.name + builtins.toString (kernel.version or "");
-        in
-          if abi == types.abis.cygnus
-          then "${cpu.name}-cygwin"
-          else if kernel.families ? darwin
-          then "${cpu.name}-darwin"
-          else "${cpu.name}-${kernelName}";
+        double =
+          {
+            cpu,
+            kernel,
+            abi,
+            ...
+          }:
+          let
+            kernelName = kernel.name + builtins.toString (kernel.version or "");
+          in
+          if abi == types.abis.cygnus then
+            "${cpu.name}-cygwin"
+          else if kernel.families ? darwin then
+            "${cpu.name}-darwin"
+          else
+            "${cpu.name}-${kernelName}";
 
-        triple = {
-          cpu,
-          vendor,
-          kernel,
-          abi,
-          ...
-        }: let
-          kernelName = kernel.name + builtins.toString (kernel.version or "");
-          netbsdExec =
-            if
-              (cpu.family == "arm" && cpu.bits == 32)
-              || (cpu.family == "sparc" && cpu.bits == 32)
-              || (cpu.family == "m68k" && cpu.bits == 32)
-              || (cpu.family == "x86" && cpu.bits == 32)
-            then types.execs.aout
-            else types.execs.elf;
+        triple =
+          {
+            cpu,
+            vendor,
+            kernel,
+            abi,
+            ...
+          }:
+          let
+            kernelName = kernel.name + builtins.toString (kernel.version or "");
+            netbsdExec =
+              if
+                (cpu.family == "arm" && cpu.bits == 32)
+                || (cpu.family == "sparc" && cpu.bits == 32)
+                || (cpu.family == "m68k" && cpu.bits == 32)
+                || (cpu.family == "x86" && cpu.bits == 32)
+              then
+                types.execs.aout
+              else
+                types.execs.elf;
 
-          exec =
-            lib.strings.when
-            (kernel.name == "netbsd" && netbsdExec != kernel.exec)
-            kernel.exec.name;
-          abi' = lib.strings.when (abi != types.abis.unknown) "-${abi.name}";
-        in "${cpu.name}-${vendor.name}-${kernelName}${exec}${abi'}";
+            exec = lib.strings.when (kernel.name == "netbsd" && netbsdExec != kernel.exec) kernel.exec.name;
+            abi' = lib.strings.when (abi != types.abis.unknown) "-${abi.name}";
+          in
+          "${cpu.name}-${vendor.name}-${kernelName}${exec}${abi'}";
       };
 
-      create = components:
+      create =
+        components:
         assert types.platform.check components;
-          lib.types.set "system" components;
+        lib.types.set "system" components;
 
-      skeleton = parts: let
-        length = builtins.length parts;
+      skeleton =
+        parts:
+        let
+          length = builtins.length parts;
 
-        first = builtins.elemAt parts 0;
-        second = builtins.elemAt parts 1;
-        third = builtins.elemAt parts 2;
-        fourth = builtins.elemAt parts 3;
-      in
-        if length == 1
-        then
-          if first == "avr"
-          then {
-            cpu = first;
-            kernel = "none";
-            abi = "unknown";
-          }
-          else builtins.throw "Target specification with 1 component is ambiguous."
-        else if length == 2
-        then
-          if second == "cygwin"
-          then {
-            cpu = first;
-            kernel = "windows";
-            abi = "cygnus";
-          }
-          else if second == "windows"
-          then {
-            cpu = first;
-            kernel = "windows";
-            abi = "msvc";
-          }
-          else if second == "elf"
-          then {
-            cpu = first;
-            vendor = "unkonwn";
-            kernel = "none";
-            abi = second;
-          }
-          else {
-            cpu = first;
-            kernel = second;
-          }
-        else if length == 3
-        then
-          if second == "linux" || (builtins.elem third ["eabi" "eabihf" "elf" "gnu"])
-          then {
-            cpu = first;
-            vendor = "unknown";
-            kernel = second;
-            abi = third;
-          }
+          first = builtins.elemAt parts 0;
+          second = builtins.elemAt parts 1;
+          third = builtins.elemAt parts 2;
+          fourth = builtins.elemAt parts 3;
+        in
+        if length == 1 then
+          if first == "avr" then
+            {
+              cpu = first;
+              kernel = "none";
+              abi = "unknown";
+            }
+          else
+            builtins.throw "Target specification with 1 component is ambiguous."
+        else if length == 2 then
+          if second == "cygwin" then
+            {
+              cpu = first;
+              kernel = "windows";
+              abi = "cygnus";
+            }
+          else if second == "windows" then
+            {
+              cpu = first;
+              kernel = "windows";
+              abi = "msvc";
+            }
+          else if second == "elf" then
+            {
+              cpu = first;
+              vendor = "unkonwn";
+              kernel = "none";
+              abi = second;
+            }
+          else
+            {
+              cpu = first;
+              kernel = second;
+            }
+        else if length == 3 then
+          if
+            second == "linux"
+            || (builtins.elem third [
+              "eabi"
+              "eabihf"
+              "elf"
+              "gnu"
+            ])
+          then
+            {
+              cpu = first;
+              vendor = "unknown";
+              kernel = second;
+              abi = third;
+            }
           else if
             (second == "apple")
             || lib.strings.hasPrefix "freebsd" third
             || lib.strings.hasPrefix "netbsd" third
             || lib.strings.hasPrefix "genode" third
-            || (builtins.elem third ["wasi" "redox" "mmixware" "ghcjs" "mingw32"])
-          then {
+            || (builtins.elem third [
+              "wasi"
+              "redox"
+              "mmixware"
+              "ghcjs"
+              "mingw32"
+            ])
+          then
+            {
+              cpu = first;
+              vendor = second;
+              kernel = if third == "mingw32" then "windows" else third;
+            }
+          else
+            builtins.throw "Target specification with 3 components is ambiguous."
+        else if length == 4 then
+          {
             cpu = first;
             vendor = second;
-            kernel =
-              if third == "mingw32"
-              then "windows"
-              else third;
+            kernel = third;
+            abi = fourth;
           }
-          else builtins.throw "Target specification with 3 components is ambiguous."
-        else if length == 4
-        then {
-          cpu = first;
-          vendor = second;
-          kernel = third;
-          abi = fourth;
-        }
-        else builtins.throw "Invalid component count for creating system skeleton. Expected 1-4, but got ${builtins.toString length}.";
+        else
+          builtins.throw "Invalid component count for creating system skeleton. Expected 1-4, but got ${builtins.toString length}.";
 
       patterns = {
-        isi686 = {cpu = types.cpus.i686;};
+        isi686 = {
+          cpu = types.cpus.i686;
+        };
         isx86_32 = {
           cpu = {
             family = "x86";
@@ -1563,7 +1966,11 @@ in {
             bits = 64;
           };
         };
-        isPower = {cpu = {family = "power";};};
+        isPower = {
+          cpu = {
+            family = "power";
+          };
+        };
         isPower64 = {
           cpu = {
             family = "power";
@@ -1574,16 +1981,26 @@ in {
         # so it sometimes causes issues in certain packages that makes the wrong
         # assumption on the used ABI.
         isAbiElfv2 = [
-          {abi = {abi = "elfv2";};}
           {
-            abi = {name = "musl";};
+            abi = {
+              abi = "elfv2";
+            };
+          }
+          {
+            abi = {
+              name = "musl";
+            };
             cpu = {
               family = "power";
               bits = 64;
             };
           }
         ];
-        isx86 = {cpu = {family = "x86";};};
+        isx86 = {
+          cpu = {
+            family = "x86";
+          };
+        };
         isAarch32 = {
           cpu = {
             family = "arm";
@@ -1591,18 +2008,39 @@ in {
           };
         };
         isArmv7 =
-          map ({arch, ...}: {cpu = {inherit arch;};})
-          (builtins.filter (cpu: lib.strings.hasPrefix "armv7" cpu.arch or "")
-            (builtins.attrValues types.cpus));
+          map
+            (
+              { arch, ... }:
+              {
+                cpu = {
+                  inherit arch;
+                };
+              }
+            )
+            (
+              builtins.filter (cpu: lib.strings.hasPrefix "armv7" cpu.arch or "") (builtins.attrValues types.cpus)
+            );
         isAarch64 = {
           cpu = {
             family = "arm";
             bits = 64;
           };
         };
-        isAarch = {cpu = {family = "arm";};};
-        isMicroBlaze = {cpu = {family = "microblaze";};};
-        isMips = {cpu = {family = "mips";};};
+        isAarch = {
+          cpu = {
+            family = "arm";
+          };
+        };
+        isMicroBlaze = {
+          cpu = {
+            family = "microblaze";
+          };
+        };
+        isMips = {
+          cpu = {
+            family = "mips";
+          };
+        };
         isMips32 = {
           cpu = {
             family = "mips";
@@ -1620,17 +2058,29 @@ in {
             family = "mips";
             bits = 64;
           };
-          abi = {abi = "n32";};
+          abi = {
+            abi = "n32";
+          };
         };
         isMips64n64 = {
           cpu = {
             family = "mips";
             bits = 64;
           };
-          abi = {abi = "64";};
+          abi = {
+            abi = "64";
+          };
         };
-        isMmix = {cpu = {family = "mmix";};};
-        isRiscV = {cpu = {family = "riscv";};};
+        isMmix = {
+          cpu = {
+            family = "mmix";
+          };
+        };
+        isRiscV = {
+          cpu = {
+            family = "riscv";
+          };
+        };
         isRiscV32 = {
           cpu = {
             family = "riscv";
@@ -1643,16 +2093,56 @@ in {
             bits = 64;
           };
         };
-        isRx = {cpu = {family = "rx";};};
-        isSparc = {cpu = {family = "sparc";};};
-        isWasm = {cpu = {family = "wasm";};};
-        isMsp430 = {cpu = {family = "msp430";};};
-        isVc4 = {cpu = {family = "vc4";};};
-        isAvr = {cpu = {family = "avr";};};
-        isAlpha = {cpu = {family = "alpha";};};
-        isOr1k = {cpu = {family = "or1k";};};
-        isM68k = {cpu = {family = "m68k";};};
-        isS390 = {cpu = {family = "s390";};};
+        isRx = {
+          cpu = {
+            family = "rx";
+          };
+        };
+        isSparc = {
+          cpu = {
+            family = "sparc";
+          };
+        };
+        isWasm = {
+          cpu = {
+            family = "wasm";
+          };
+        };
+        isMsp430 = {
+          cpu = {
+            family = "msp430";
+          };
+        };
+        isVc4 = {
+          cpu = {
+            family = "vc4";
+          };
+        };
+        isAvr = {
+          cpu = {
+            family = "avr";
+          };
+        };
+        isAlpha = {
+          cpu = {
+            family = "alpha";
+          };
+        };
+        isOr1k = {
+          cpu = {
+            family = "or1k";
+          };
+        };
+        isM68k = {
+          cpu = {
+            family = "m68k";
+          };
+        };
+        isS390 = {
+          cpu = {
+            family = "s390";
+          };
+        };
         isS390x = {
           cpu = {
             family = "s390";
@@ -1665,26 +2155,92 @@ in {
             bits = 64;
           };
         };
-        isJavaScript = {cpu = types.cpus.javascript;};
+        isJavaScript = {
+          cpu = types.cpus.javascript;
+        };
 
-        is32bit = {cpu = {bits = 32;};};
-        is64bit = {cpu = {bits = 64;};};
-        isILP32 = builtins.map (a: {abi = {abi = a;};}) ["n32" "ilp32" "x32"];
-        isBigEndian = {cpu = {endian = types.endians.big;};};
-        isLittleEndian = {cpu = {endian = types.endians.little;};};
+        is32bit = {
+          cpu = {
+            bits = 32;
+          };
+        };
+        is64bit = {
+          cpu = {
+            bits = 64;
+          };
+        };
+        isILP32 =
+          builtins.map
+            (a: {
+              abi = {
+                abi = a;
+              };
+            })
+            [
+              "n32"
+              "ilp32"
+              "x32"
+            ];
+        isBigEndian = {
+          cpu = {
+            endian = types.endians.big;
+          };
+        };
+        isLittleEndian = {
+          cpu = {
+            endian = types.endians.little;
+          };
+        };
 
-        isBSD = {kernel = {families = {bsd = types.families.bsd;};};};
-        isDarwin = {kernel = {families = {darwin = types.families.darwin;};};};
-        isUnix = [lib'.systems.match.isBSD lib'.systems.match.isDarwin lib'.systems.match.isLinux lib'.systems.match.isSunOS lib'.systems.match.isCygwin lib'.systems.match.isRedox];
+        isBSD = {
+          kernel = {
+            families = {
+              bsd = types.families.bsd;
+            };
+          };
+        };
+        isDarwin = {
+          kernel = {
+            families = {
+              darwin = types.families.darwin;
+            };
+          };
+        };
+        isUnix = [
+          lib'.systems.match.isBSD
+          lib'.systems.match.isDarwin
+          lib'.systems.match.isLinux
+          lib'.systems.match.isSunOS
+          lib'.systems.match.isCygwin
+          lib'.systems.match.isRedox
+        ];
 
-        isMacOS = {kernel = types.kernels.macos;};
-        isiOS = {kernel = types.kernels.ios;};
-        isLinux = {kernel = types.kernels.linux;};
-        isSunOS = {kernel = types.kernels.solaris;};
-        isFreeBSD = {kernel = {name = "freebsd";};};
-        isNetBSD = {kernel = types.kernels.netbsd;};
-        isOpenBSD = {kernel = types.kernels.openbsd;};
-        isWindows = {kernel = types.kernels.windows;};
+        isMacOS = {
+          kernel = types.kernels.macos;
+        };
+        isiOS = {
+          kernel = types.kernels.ios;
+        };
+        isLinux = {
+          kernel = types.kernels.linux;
+        };
+        isSunOS = {
+          kernel = types.kernels.solaris;
+        };
+        isFreeBSD = {
+          kernel = {
+            name = "freebsd";
+          };
+        };
+        isNetBSD = {
+          kernel = types.kernels.netbsd;
+        };
+        isOpenBSD = {
+          kernel = types.kernels.openbsd;
+        };
+        isWindows = {
+          kernel = types.kernels.windows;
+        };
         isCygwin = {
           kernel = types.kernels.windows;
           abi = types.abis.cygnus;
@@ -1693,16 +2249,47 @@ in {
           kernel = types.kernels.windows;
           abi = types.abis.gnu;
         };
-        isWasi = {kernel = types.kernels.wasi;};
-        isRedox = {kernel = types.kernels.redox;};
-        isGhcjs = {kernel = types.kernels.ghcjs;};
-        isGenode = {kernel = types.kernels.genode;};
-        isNone = {kernel = types.kernels.none;};
+        isWasi = {
+          kernel = types.kernels.wasi;
+        };
+        isRedox = {
+          kernel = types.kernels.redox;
+        };
+        isGhcjs = {
+          kernel = types.kernels.ghcjs;
+        };
+        isGenode = {
+          kernel = types.kernels.genode;
+        };
+        isNone = {
+          kernel = types.kernels.none;
+        };
 
-        isAndroid = [{abi = types.abis.android;} {abi = types.abis.androideabi;}];
-        isGnu = builtins.map (value: {abi = value;}) [types.abis.gnuabi64 types.abis.gnuabin32 types.abis.gnu types.abis.gnueabi types.abis.gnueabihf types.abis.gnuabielfv1 types.abis.gnuabielfv2];
-        isMusl = builtins.map (value: {abi = value;}) [types.abis.musl types.abis.musleabi types.abis.musleabihf types.abis.muslabin32 types.abis.muslabi64];
-        isUClibc = builtins.map (value: {abi = value;}) [types.abis.uclibc types.abis.uclibceabi types.abis.uclibceabihf];
+        isAndroid = [
+          { abi = types.abis.android; }
+          { abi = types.abis.androideabi; }
+        ];
+        isGnu = builtins.map (value: { abi = value; }) [
+          types.abis.gnuabi64
+          types.abis.gnuabin32
+          types.abis.gnu
+          types.abis.gnueabi
+          types.abis.gnueabihf
+          types.abis.gnuabielfv1
+          types.abis.gnuabielfv2
+        ];
+        isMusl = builtins.map (value: { abi = value; }) [
+          types.abis.musl
+          types.abis.musleabi
+          types.abis.musleabihf
+          types.abis.muslabin32
+          types.abis.muslabi64
+        ];
+        isUClibc = builtins.map (value: { abi = value; }) [
+          types.abis.uclibc
+          types.abis.uclibceabi
+          types.abis.uclibceabihf
+        ];
 
         isEfi = [
           {
@@ -1723,8 +2310,16 @@ in {
               version = "8";
             };
           }
-          {cpu = {family = "riscv";};}
-          {cpu = {family = "x86";};}
+          {
+            cpu = {
+              family = "riscv";
+            };
+          }
+          {
+            cpu = {
+              family = "x86";
+            };
+          }
         ];
       };
 
@@ -1866,34 +2461,48 @@ in {
         freebsd = getDoubles lib'.systems.match.isFreeBSD;
         # Should be better, but MinGW is unclear.
         gnu =
-          getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnu;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnueabi;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnueabihf;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnuabin32;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnuabi64;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnuabielfv1;
-          })
-          ++ getDoubles (lib.attrs.match {
-            kernel = types.kernels.linux;
-            abi = types.abis.gnuabielfv2;
-          });
+          getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnu;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnueabi;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnueabihf;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnuabin32;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnuabi64;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnuabielfv1;
+            }
+          )
+          ++ getDoubles (
+            lib.attrs.match {
+              kernel = types.kernels.linux;
+              abi = types.abis.gnuabielfv2;
+            }
+          );
         illumos = getDoubles lib'.systems.match.isSunOS;
         linux = getDoubles lib'.systems.match.isLinux;
         netbsd = getDoubles lib'.systems.match.isNetBSD;
@@ -1906,288 +2515,284 @@ in {
 
         embedded = getDoubles lib'.systems.match.isNone;
 
-        mesaPlatforms = ["i686-linux" "x86_64-linux" "x86_64-darwin" "armv5tel-linux" "armv6l-linux" "armv7l-linux" "armv7a-linux" "aarch64-linux" "powerpc64-linux" "powerpc64le-linux" "aarch64-darwin" "riscv64-linux"];
+        mesaPlatforms = [
+          "i686-linux"
+          "x86_64-linux"
+          "x86_64-darwin"
+          "armv5tel-linux"
+          "armv6l-linux"
+          "armv7l-linux"
+          "armv7a-linux"
+          "aarch64-linux"
+          "powerpc64-linux"
+          "powerpc64le-linux"
+          "aarch64-darwin"
+          "riscv64-linux"
+        ];
       };
 
-      withBuildInfo = args: let
-        settings =
-          if builtins.isString args
-          then {system = args;}
-          else args;
+      withBuildInfo =
+        args:
+        let
+          settings = if builtins.isString args then { system = args; } else args;
 
-        resolved =
-          {
-            system = lib'.systems.from.string (
-              if settings ? triple
-              then settings.triple
-              else settings.system
-            );
+          resolved =
+            {
+              system = lib'.systems.from.string (if settings ? triple then settings.triple else settings.system);
 
-            inherit
-              ({
-                  linux-kernel = settings.linux-kernel or {};
-                  gcc = settings.gcc or {};
-                  rustc = settings.rustc or {};
-                }
-                // lib'.systems.platforms.select resolved)
-              linux-kernel
-              gcc
-              rustc
-              ;
+              inherit
+                (
+                  {
+                    linux-kernel = settings.linux-kernel or { };
+                    gcc = settings.gcc or { };
+                    rustc = settings.rustc or { };
+                  }
+                  // lib'.systems.platforms.select resolved
+                )
+                linux-kernel
+                gcc
+                rustc
+                ;
 
-            double = lib'.systems.into.double resolved.system;
-            triple = lib'.systems.into.triple resolved.system;
+              double = lib'.systems.into.double resolved.system;
+              triple = lib'.systems.into.triple resolved.system;
 
-            isExecutable = platform:
-              (resolved.isAndroid == platform.isAndroid)
-              && resolved.system.kernel == platform.system.kernel
-              && lib'.systems.validate.compatible resolved.system.cpu platform.system.cpu;
+              isExecutable =
+                platform:
+                (resolved.isAndroid == platform.isAndroid)
+                && resolved.system.kernel == platform.system.kernel
+                && lib'.systems.validate.compatible resolved.system.cpu platform.system.cpu;
 
-            # The difference between `isStatic` and `hasSharedLibraries` is mainly the
-            # addition of the `staticMarker` (see make-derivation.nix).  Some
-            # platforms, like embedded machines without a libc (e.g. arm-none-eabi)
-            # don't support dynamic linking, but don't get the `staticMarker`.
-            # `pkgsStatic` sets `isStatic=true`, so `pkgsStatic.hostPlatform` always
-            # has the `staticMarker`.
-            isStatic = resolved.isWasm || resolved.isRedox;
+              # The difference between `isStatic` and `hasSharedLibraries` is mainly the
+              # addition of the `staticMarker` (see make-derivation.nix).  Some
+              # platforms, like embedded machines without a libc (e.g. arm-none-eabi)
+              # don't support dynamic linking, but don't get the `staticMarker`.
+              # `pkgsStatic` sets `isStatic=true`, so `pkgsStatic.hostPlatform` always
+              # has the `staticMarker`.
+              isStatic = resolved.isWasm || resolved.isRedox;
 
-            # It is important that hasSharedLibraries==false when the platform has no
-            # dynamic library loader.  Various tools (including the gcc build system)
-            # have knowledge of which platforms are incapable of dynamic linking, and
-            # will still build on/for those platforms with --enable-shared, but simply
-            # omit any `.so` build products such as libgcc_s.so.  When that happens,
-            # it causes hard-to-troubleshoot build failures.
-            hasSharedLibraries =
-              !resolved.isStatic
-              && (
-                # Linux (allows multiple libcs)
-                resolved.isAndroid
-                || resolved.isGnu
-                || resolved.isMusl
-                # BSDs
-                || resolved.isDarwin
-                || resolved.isSunOS
-                || resolved.isOpenBSD
-                || resolved.isFreeBSD
-                || resolved.isNetBSD
-                # Windows
-                || resolved.isCygwin
-                || resolved.isMinGW
-              );
+              # It is important that hasSharedLibraries==false when the platform has no
+              # dynamic library loader.  Various tools (including the gcc build system)
+              # have knowledge of which platforms are incapable of dynamic linking, and
+              # will still build on/for those platforms with --enable-shared, but simply
+              # omit any `.so` build products such as libgcc_s.so.  When that happens,
+              # it causes hard-to-troubleshoot build failures.
+              hasSharedLibraries =
+                !resolved.isStatic
+                && (
+                  # Linux (allows multiple libcs)
+                  resolved.isAndroid
+                  || resolved.isGnu
+                  || resolved.isMusl
+                  # BSDs
+                  || resolved.isDarwin
+                  || resolved.isSunOS
+                  || resolved.isOpenBSD
+                  || resolved.isFreeBSD
+                  || resolved.isNetBSD
+                  # Windows
+                  || resolved.isCygwin
+                  || resolved.isMinGW
+                );
 
-            libc =
-              if resolved.isDarwin
-              then "libSystem"
-              else if resolved.isMinGW
-              then "msvcrt"
-              else if resolved.isWasi
-              then "wasilibc"
-              else if resolved.isRedox
-              then "relibc"
-              else if resolved.isMusl
-              then "musl"
-              else if resolved.isUClibc
-              then "uclibc"
-              else if resolved.isAndroid
-              then "bionic"
-              else if resolved.isLinux
-              then "glibc"
-              else if resolved.isFreeBSD
-              then "fblibc"
-              else if resolved.isNetBSD
-              then "nblibc"
-              else if resolved.isAvr
-              then "avrlibc"
-              else if resolved.isGhcjs
-              then null
-              else if resolved.isNone
-              then "newlib"
-              else "native/impure";
+              libc =
+                if resolved.isDarwin then
+                  "libSystem"
+                else if resolved.isMinGW then
+                  "msvcrt"
+                else if resolved.isWasi then
+                  "wasilibc"
+                else if resolved.isRedox then
+                  "relibc"
+                else if resolved.isMusl then
+                  "musl"
+                else if resolved.isUClibc then
+                  "uclibc"
+                else if resolved.isAndroid then
+                  "bionic"
+                else if resolved.isLinux then
+                  "glibc"
+                else if resolved.isFreeBSD then
+                  "fblibc"
+                else if resolved.isNetBSD then
+                  "nblibc"
+                else if resolved.isAvr then
+                  "avrlibc"
+                else if resolved.isGhcjs then
+                  null
+                else if resolved.isNone then
+                  "newlib"
+                else
+                  "native/impure";
 
-            linker =
-              if resolved.isDarwin
-              then "cctools"
-              else "bfd";
+              linker = if resolved.isDarwin then "cctools" else "bfd";
 
-            extensions =
-              (lib.attrs.when resolved.hasSharedLibraries {
-                shared =
-                  if resolved.isDarwin
-                  then ".dylib"
-                  else if resolved.isWindows
-                  then ".dll"
-                  else ".so";
-              })
-              // {
-                static =
-                  if resolved.isWindows
-                  then ".lib"
-                  else ".a";
+              extensions =
+                (lib.attrs.when resolved.hasSharedLibraries {
+                  shared =
+                    if resolved.isDarwin then
+                      ".dylib"
+                    else if resolved.isWindows then
+                      ".dll"
+                    else
+                      ".so";
+                })
+                // {
+                  static = if resolved.isWindows then ".lib" else ".a";
 
-                library =
-                  if resolved.isStatic
-                  then resolved.extensions.static
-                  else resolved.extensions.shared;
+                  library = if resolved.isStatic then resolved.extensions.static else resolved.extensions.shared;
 
-                executable =
-                  if resolved.isWindows
-                  then ".exe"
-                  else "";
+                  executable = if resolved.isWindows then ".exe" else "";
+                };
+
+              uname = {
+                system =
+                  if resolved.system.kernel.name == "linux" then
+                    "Linux"
+                  else if resolved.system.kernel.name == "windows" then
+                    "Windows"
+                  else if resolved.system.kernel.name == "darwin" then
+                    "Darwin"
+                  else if resolved.system.kernel.name == "netbsd" then
+                    "NetBSD"
+                  else if resolved.system.kernel.name == "freebsd" then
+                    "FreeBSD"
+                  else if resolved.system.kernel.name == "openbsd" then
+                    "OpenBSD"
+                  else if resolved.system.kernel.name == "wasi" then
+                    "Wasi"
+                  else if resolved.system.kernel.name == "redox" then
+                    "Redox"
+                  else if resolved.system.kernel.name == "redox" then
+                    "Genode"
+                  else
+                    null;
+
+                processor =
+                  if resolved.isPower64 then
+                    "ppc64${lib.strings.when resolved.isLittleEndian "le"}"
+                  else if resolved.isPower then
+                    "ppc${lib.strings.when resolved.isLittleEndian "le"}"
+                  else if resolved.isMips64 then
+                    "mips64"
+                  else
+                    resolved.system.cpu.name;
+
+                release = null;
               };
 
-            uname = {
-              system =
-                if resolved.system.kernel.name == "linux"
-                then "Linux"
-                else if resolved.system.kernel.name == "windows"
-                then "Windows"
-                else if resolved.system.kernel.name == "darwin"
-                then "Darwin"
-                else if resolved.system.kernel.name == "netbsd"
-                then "NetBSD"
-                else if resolved.system.kernel.name == "freebsd"
-                then "FreeBSD"
-                else if resolved.system.kernel.name == "openbsd"
-                then "OpenBSD"
-                else if resolved.system.kernel.name == "wasi"
-                then "Wasi"
-                else if resolved.system.kernel.name == "redox"
-                then "Redox"
-                else if resolved.system.kernel.name == "redox"
-                then "Genode"
-                else null;
+              useAndroidPrebuilt = false;
+              useiOSPrebuilt = false;
 
-              processor =
-                if resolved.isPower64
-                then "ppc64${lib.strings.when resolved.isLittleEndian "le"}"
-                else if resolved.isPower
-                then "ppc${lib.strings.when resolved.isLittleEndian "le"}"
-                else if resolved.isMips64
-                then "mips64"
-                else resolved.system.cpu.name;
+              linux.arch =
+                if resolved.isAarch32 then
+                  "arm"
+                else if resolved.isAarch64 then
+                  "arm64"
+                else if resolved.isx86_32 then
+                  "i386"
+                else if resolved.isx86_64 then
+                  "x86_64"
+                # linux kernel does not distinguish microblaze/microblazeel
+                else if resolved.isMicroBlaze then
+                  "microblaze"
+                else if resolved.isMips32 then
+                  "mips"
+                else if resolved.isMips64 then
+                  "mips" # linux kernel does not distinguish mips32/mips64
+                else if resolved.isPower then
+                  "powerpc"
+                else if resolved.isRiscV then
+                  "riscv"
+                else if resolved.isS390 then
+                  "s390"
+                else if resolved.isLoongArch64 then
+                  "loongarch"
+                else
+                  resolved.system.cpu.name;
 
-              release = null;
-            };
+              uboot.arch =
+                if resolved.isx86_32 then
+                  "x86" # not i386
+                else if resolved.isMips64 then
+                  "mips64" # uboot *does* distinguish between mips32/mips64
+                else
+                  resolved.linux.arch; # other cases appear to agree with linuxArch
 
-            useAndroidPrebuilt = false;
-            useiOSPrebuilt = false;
+              qemu.arch =
+                if resolved.isAarch32 then
+                  "arm"
+                else if resolved.isS390 && !resolved.isS390x then
+                  null
+                else if resolved.isx86_64 then
+                  "x86_64"
+                else if resolved.isx86 then
+                  "i386"
+                else if resolved.isMips64n32 then
+                  "mipsn32${lib.strings.when resolved.isLittleEndian "el"}"
+                else if resolved.isMips64 then
+                  "mips64${lib.strings.when resolved.isLittleEndian "el"}"
+                else
+                  resolved.uname.processor;
 
-            linux.arch =
-              if resolved.isAarch32
-              then "arm"
-              else if resolved.isAarch64
-              then "arm64"
-              else if resolved.isx86_32
-              then "i386"
-              else if resolved.isx86_64
-              then "x86_64"
-              # linux kernel does not distinguish microblaze/microblazeel
-              else if resolved.isMicroBlaze
-              then "microblaze"
-              else if resolved.isMips32
-              then "mips"
-              else if resolved.isMips64
-              then "mips" # linux kernel does not distinguish mips32/mips64
-              else if resolved.isPower
-              then "powerpc"
-              else if resolved.isRiscV
-              then "riscv"
-              else if resolved.isS390
-              then "s390"
-              else if resolved.isLoongArch64
-              then "loongarch"
-              else resolved.system.cpu.name;
+              efi.arch =
+                if resolved.isx86_32 then
+                  "ia32"
+                else if resolved.isx86_64 then
+                  "x64"
+                else if resolved.isAarch32 then
+                  "arm"
+                else if resolved.isAarch64 then
+                  "aa64"
+                else
+                  resolved.system.cpu.name;
 
-            uboot.arch =
-              if resolved.isx86_32
-              then "x86" # not i386
-              else if resolved.isMips64
-              then "mips64" # uboot *does* distinguish between mips32/mips64
-              else resolved.linux.arch; # other cases appear to agree with linuxArch
+              darwin = {
+                arch =
+                  if resolved.system.cpu.name == "armv7a" then
+                    "armv7"
+                  else if resolved.system.cpu.name == "aarch64" then
+                    "arm64"
+                  else
+                    resolved.system.cpu.name;
 
-            qemu.arch =
-              if resolved.isAarch32
-              then "arm"
-              else if resolved.isS390 && !resolved.isS390x
-              then null
-              else if resolved.isx86_64
-              then "x86_64"
-              else if resolved.isx86
-              then "i386"
-              else if resolved.isMips64n32
-              then "mipsn32${lib.strings.when resolved.isLittleEndian "el"}"
-              else if resolved.isMips64
-              then "mips64${lib.strings.when resolved.isLittleEndian "el"}"
-              else resolved.uname.processor;
+                platform =
+                  if resolved.isMacOS then
+                    "macos"
+                  else if resolved.isiOS then
+                    "ios"
+                  else
+                    null;
 
-            efi.arch =
-              if resolved.isx86_32
-              then "ia32"
-              else if resolved.isx86_64
-              then "x64"
-              else if resolved.isAarch32
-              then "arm"
-              else if resolved.isAarch64
-              then "aa64"
-              else resolved.system.cpu.name;
+                sdk = {
+                  version = resolved.darwinSdkVersion or (if resolved.isAarch64 then "11.0" else "10.12");
 
-            darwin = {
-              arch =
-                if resolved.system.cpu.name == "armv7a"
-                then "armv7"
-                else if resolved.system.cpu.name == "aarch64"
-                then "arm64"
-                else resolved.system.cpu.name;
+                  min = resolved.darwin.sdk.version;
 
-              platform =
-                if resolved.isMacOS
-                then "macos"
-                else if resolved.isiOS
-                then "ios"
-                else null;
-
-              sdk = {
-                version =
-                  resolved.darwinSdkVersion
-                  or (
-                    if resolved.isAarch64
-                    then "11.0"
-                    else "10.12"
-                  );
-
-                min = resolved.darwin.sdk.version;
-
-                variable =
-                  if resolved.isMacOS
-                  then "MACOSX_DEPLOYMENT_TARGET"
-                  else if resolved.isiOS
-                  then "IPHONEOS_DEPLOYMENT_TARGET"
-                  else null;
+                  variable =
+                    if resolved.isMacOS then
+                      "MACOSX_DEPLOYMENT_TARGET"
+                    else if resolved.isiOS then
+                      "IPHONEOS_DEPLOYMENT_TARGET"
+                    else
+                      null;
+                };
               };
-            };
-          }
-          // builtins.mapAttrs (name: match: match resolved.system) lib'.systems.match
-          // builtins.mapAttrs (name: validate: validate (resolved.gcc.arch or "default")) lib'.systems.validate.architecture
-          // (builtins.removeAttrs settings ["system"]);
+            }
+            // builtins.mapAttrs (name: match: match resolved.system) lib'.systems.match
+            // builtins.mapAttrs (
+              name: validate: validate (resolved.gcc.arch or "default")
+            ) lib'.systems.validate.architecture
+            // (builtins.removeAttrs settings [ "system" ]);
 
-        assertions =
-          builtins.foldl'
-          (
-            result: {
-              assertion,
-              message,
-            }:
-              if assertion resolved
-              then result
-              else builtins.throw message
-          )
-          true
-          (resolved.system.abi.assertions or []);
-      in
+          assertions = builtins.foldl' (
+            result: { assertion, message }: if assertion resolved then result else builtins.throw message
+          ) true (resolved.system.abi.assertions or [ ]);
+        in
         assert resolved.useAndroidPrebuilt -> resolved.isAndroid;
         assert assertions;
         # And finally, return the generated system info.
-          resolved;
+        resolved;
     };
   };
 }

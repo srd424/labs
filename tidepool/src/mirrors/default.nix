@@ -1,5 +1,1 @@
-{
-  includes = [
-    ./gnu.nix
-  ];
-}
+{ includes = [ ./gnu.nix ]; }

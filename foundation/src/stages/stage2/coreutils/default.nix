@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage2.coreutils;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage2.coreutils = {
     meta = {
       description = lib.options.create {
@@ -33,7 +32,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -62,18 +61,19 @@ in {
         sha256 = "X2ANkJOXOwr+JTk9m8GMRPIjJlf0yg2V6jHHAutmtzk=";
       };
 
-      package = let
-        configureFlags = [
-          "--prefix=${builtins.placeholder "out"}"
-          "--build=${platform.build}"
-          "--host=${platform.host}"
-          # libstdbuf.so fails in static builds
-          "--enable-no-install-program=stdbuf"
-          "--enable-single-binary=symlinks"
-          "CC=musl-gcc"
-          "CFLAGS=-static"
-        ];
-      in
+      package =
+        let
+          configureFlags = [
+            "--prefix=${builtins.placeholder "out"}"
+            "--build=${platform.build}"
+            "--host=${platform.host}"
+            # libstdbuf.so fails in static builds
+            "--enable-no-install-program=stdbuf"
+            "--enable-single-binary=symlinks"
+            "CC=musl-gcc"
+            "CFLAGS=-static"
+          ];
+        in
         builders.bash.build {
           name = "coreutils-${cfg.version}";
 

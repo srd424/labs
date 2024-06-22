@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.mes.libs;
 
   system = config.aux.system;
@@ -9,7 +7,8 @@
 
   stage0 = config.aux.foundation.stages.stage0;
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.mes.libs = {
     meta = {
       description = lib.options.create {
@@ -34,7 +33,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 
@@ -58,12 +57,13 @@ in {
     aux.foundation.stages.stage1.mes.libs = {
       prefix = "${cfg.src.out}/mes-${stage1.mes.version}";
 
-      src = let
-        config_h = builtins.toFile "config.h" ''
-          #undef SYSTEM_LIBC
-          #define MES_VERSION "${stage1.mes.version}"
-        '';
-      in
+      src =
+        let
+          config_h = builtins.toFile "config.h" ''
+            #undef SYSTEM_LIBC
+            #define MES_VERSION "${stage1.mes.version}"
+          '';
+        in
         builders.kaem.build {
           name = "mes-src-${stage1.mes.version}";
 
@@ -140,71 +140,82 @@ in {
           '';
         };
 
-      package = let
-        compile = path: let
-          file = builtins.baseNameOf path;
-          fileWithoutExtension = builtins.replaceStrings [".c"] [""] file;
+      package =
+        let
+          compile =
+            path:
+            let
+              file = builtins.baseNameOf path;
+              fileWithoutExtension = builtins.replaceStrings [ ".c" ] [ "" ] file;
 
-          cc = builtins.concatStringsSep " " [
-            "${cfg.src.bin}/bin/mes-m2"
-            "-e"
-            "main"
-            "${cfg.src.bin}/bin/mescc.scm"
-            "--"
-            "-D"
-            "HAVE_CONFIG_H=1"
-            "-I"
-            "${cfg.prefix}/include"
-            "-I"
-            "${cfg.prefix}/include/linux/x86"
-          ];
+              cc = builtins.concatStringsSep " " [
+                "${cfg.src.bin}/bin/mes-m2"
+                "-e"
+                "main"
+                "${cfg.src.bin}/bin/mescc.scm"
+                "--"
+                "-D"
+                "HAVE_CONFIG_H=1"
+                "-I"
+                "${cfg.prefix}/include"
+                "-I"
+                "${cfg.prefix}/include/linux/x86"
+              ];
+            in
+            builders.kaem.build {
+              name = fileWithoutExtension;
+
+              script = ''
+                mkdir ''${out}
+                cd ''${out}
+                ${cc} -c ${cfg.prefix}/${path}
+              '';
+            };
+
+          getSourcePath = suffix: source: "${source}/${source.name}${suffix}";
+
+          archive =
+            destination: sources:
+            "catm ${destination} ${lib.strings.concatMapSep " " (getSourcePath ".o") sources}";
+          source =
+            destination: sources:
+            "catm ${destination} ${lib.strings.concatMapSep " " (getSourcePath ".s") sources}";
+
+          createLib =
+            name: sources:
+            let
+              compiled = builtins.map compile sources;
+            in
+            builders.kaem.build {
+              name = "mes-${name}-${stage1.mes.version}";
+
+              meta = cfg.meta;
+
+              script = ''
+                LIBDIR=''${out}/lib
+                mkdir -p ''${LIBDIR}
+                cd ''${LIBDIR}
+
+                ${archive "${name}.a" compiled}
+                ${source "${name}.s" compiled}
+
+              '';
+            };
+
+          sources = import ./sources.nix;
+
+          crt1 = compile "lib/linux/x86-mes-mescc/crt1.c";
+          libc-mini = createLib "libc-mini" sources.x86.linux.mescc.libc_mini;
+          libmescc = createLib "libmescc" sources.x86.linux.mescc.libmescc;
+          libc = createLib "libc" sources.x86.linux.mescc.libc;
+          libc_tcc = createLib "libc+tcc" (
+            sources.x86.linux.mescc.libc_tcc
+            ++ [
+              # We need `symlink` support for `ln-boot` to work.
+              "lib/linux/symlink.c"
+            ]
+          );
         in
-          builders.kaem.build {
-            name = fileWithoutExtension;
-
-            script = ''
-              mkdir ''${out}
-              cd ''${out}
-              ${cc} -c ${cfg.prefix}/${path}
-            '';
-          };
-
-        getSourcePath = suffix: source: "${source}/${source.name}${suffix}";
-
-        archive = destination: sources: "catm ${destination} ${lib.strings.concatMapSep " " (getSourcePath ".o") sources}";
-        source = destination: sources: "catm ${destination} ${lib.strings.concatMapSep " " (getSourcePath ".s") sources}";
-
-        createLib = name: sources: let
-          compiled = builtins.map compile sources;
-        in
-          builders.kaem.build {
-            name = "mes-${name}-${stage1.mes.version}";
-
-            meta = cfg.meta;
-
-            script = ''
-              LIBDIR=''${out}/lib
-              mkdir -p ''${LIBDIR}
-              cd ''${LIBDIR}
-
-              ${archive "${name}.a" compiled}
-              ${source "${name}.s" compiled}
-
-            '';
-          };
-
-        sources = import ./sources.nix;
-
-        crt1 = compile "lib/linux/x86-mes-mescc/crt1.c";
-        libc-mini = createLib "libc-mini" sources.x86.linux.mescc.libc_mini;
-        libmescc = createLib "libmescc" sources.x86.linux.mescc.libmescc;
-        libc = createLib "libc" sources.x86.linux.mescc.libc;
-        libc_tcc = createLib "libc+tcc" (sources.x86.linux.mescc.libc_tcc
-          ++ [
-            # We need `symlink` support for `ln-boot` to work.
-            "lib/linux/symlink.c"
-          ]);
-      in
         builders.kaem.build {
           name = "mes-m2-libs-${stage1.mes.version}";
 

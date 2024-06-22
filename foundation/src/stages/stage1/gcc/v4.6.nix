@@ -1,14 +1,13 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.gcc.v46;
 
   platform = config.aux.platform;
   builders = config.aux.foundation.builders;
 
   stage1 = config.aux.foundation.stages.stage1;
-in {
+in
+{
   options.aux.foundation.stages.stage1.gcc.v46 = {
     package = lib.options.create {
       type = lib.types.derivation;
@@ -112,12 +111,13 @@ in {
         };
       };
 
-      package = let
-        patches = [
-          # Remove hardcoded NATIVE_SYSTEM_HEADER_DIR
-          ./patches/no-system-headers.patch
-        ];
-      in
+      package =
+        let
+          patches = [
+            # Remove hardcoded NATIVE_SYSTEM_HEADER_DIR
+            ./patches/no-system-headers.patch
+          ];
+        in
         builders.bash.build {
           name = "gcc-${cfg.version}";
 

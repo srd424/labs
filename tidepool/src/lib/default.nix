@@ -1,9 +1,8 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.lib;
-in {
+in
+{
   includes = [
     ./options.nix
     ./packages.nix
@@ -14,7 +13,7 @@ in {
   options = {
     lib = lib.options.create {
       type = lib.types.attrs.any;
-      default.value = {};
+      default.value = { };
       description = "An attribute set of values to be added to `lib`.";
       apply = value: lib.extend (final: prev: prev.attrs.mergeRecursive prev value);
     };

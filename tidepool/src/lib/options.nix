@@ -1,8 +1,7 @@
+{ lib, config }:
+let
+in
 {
-  lib,
-  config,
-}: let
-in {
   config = {
     lib.options = {
       package = lib.options.create {

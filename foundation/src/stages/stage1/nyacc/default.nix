@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   cfg = config.aux.foundation.stages.stage1.nyacc;
 
   builders = config.aux.foundation.builders;
@@ -10,7 +8,8 @@
 
   pname = "nyacc";
   version = "1.00.2";
-in {
+in
+{
   options.aux.foundation.stages.stage1.nyacc = {
     meta = {
       description = lib.options.create {
@@ -35,7 +34,7 @@ in {
       platforms = lib.options.create {
         type = lib.types.list.of lib.types.string;
         description = "Platforms the package supports.";
-        default.value = ["i686-linux"];
+        default.value = [ "i686-linux" ];
       };
     };
 

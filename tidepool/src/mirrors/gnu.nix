@@ -1,4 +1,5 @@
-{lib}: {
+{ lib }:
+{
   options.mirrors = {
     gnu = lib.options.create {
       description = "The GNU mirror to use";

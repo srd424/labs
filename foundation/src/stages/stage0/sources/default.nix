@@ -1,11 +1,10 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   system = config.aux.system;
 
   architecture = config.aux.foundation.stages.stage0.architecture.base;
-in {
+in
+{
   options.aux.foundation.stages.stage0.sources = {
     base = lib.options.create {
       type = lib.types.string;
@@ -44,27 +43,25 @@ in {
       # fetching that, we are instead fetching each submodule directly. The central repository is located
       # here: https://github.com/oriansj/stage0-posix
       base =
-        if architecture == "AMD64"
-        then
+        if architecture == "AMD64" then
           builtins.fetchTarball {
             url = "https://github.com/oriansj/stage0-posix-amd64/archive/93fbe4c08772d8df1412e2554668e24cf604088c.tar.gz";
             sha256 = "10d1xnjzqplpfip3pm89bydd501x1bcgkg7lkkadyq5bqpad5flp";
           }
-        else if architecture == "AArch64"
-        then
+        else if architecture == "AArch64" then
           # FIXME: We may need to patch the aarch64 variant.
           # https://github.com/oriansj/M2libc/pull/17
           builtins.fetchTarball {
             url = "https://github.com/oriansj/stage0-posix-aarch64/archive/39a43f803d572b53f95d42507202152eeda18361.tar.gz";
             sha256 = "1x607hr3n5j89394d156r23igpx8hifjd14ygksx7902rlwrrry2";
           }
-        else if architecture == "x86"
-        then
+        else if architecture == "x86" then
           builtins.fetchTarball {
             url = "https://github.com/oriansj/stage0-posix-x86/archive/e86bf7d304bae5ce5ccc88454bb60cf0837e941f.tar.gz";
             sha256 = "1c1fk793yzq8zbg60n2zd22fsmirc3zr26fj0iskap456g84nxv8";
           }
-        else builtins.throw "Unsupported architecture for stage0: ${architecture}";
+        else
+          builtins.throw "Unsupported architecture for stage0: ${architecture}";
 
       m2libc = builtins.fetchTarball {
         url = "https://github.com/oriansj/M2libc/archive/de7c75f144176c3b9be77695d9bf94440445aeae.tar.gz";

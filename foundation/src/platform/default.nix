@@ -1,7 +1,5 @@
-{
-  lib,
-  config,
-}: let
+{ lib, config }:
+let
   system = config.aux.system;
 
   parts = lib.strings.split "-" system;
@@ -285,7 +283,8 @@
       family = "javascript";
     };
   };
-in {
+in
+{
   options.aux.platform = {
     name = lib.options.create {
       type = lib.types.string;
@@ -303,7 +302,10 @@ in {
     };
 
     endian = lib.options.create {
-      type = lib.types.enum ["little" "big"];
+      type = lib.types.enum [
+        "little"
+        "big"
+      ];
       default.value = "big";
       description = "Endianess of the platform";
     };
@@ -332,18 +334,13 @@ in {
   };
 
   config = {
-    aux.platform =
-      (
-        platforms.${platform}
-        or (builtins.throw "Unsupported platform: ${system}")
-      )
-      // {
-        name = platform;
+    aux.platform = (platforms.${platform} or (builtins.throw "Unsupported platform: ${system}")) // {
+      name = platform;
 
-        # These will only ever have `linux` as the target since we
-        # do not support darwin bootstrapping.
-        build = "${platform}-unknown-${target}-gnu";
-        host = "${platform}-unknown-${target}-gnu";
-      };
+      # These will only ever have `linux` as the target since we
+      # do not support darwin bootstrapping.
+      build = "${platform}-unknown-${target}-gnu";
+      host = "${platform}-unknown-${target}-gnu";
+    };
   };
 }
