@@ -83,7 +83,6 @@ in {
 
             # Configure
             export CC="tcc -B ${stage1.tinycc.mes.libs.package}/lib -Dstrlwr=unused"
-            chmod 0755 missing
             bash ./configure --prefix=$out
 
             # Build
