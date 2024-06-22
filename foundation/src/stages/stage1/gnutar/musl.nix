@@ -60,6 +60,7 @@ in {
           export ac_cv_sizeof_unsigned_long=4
           export ac_cv_sizeof_long_long=8
           export ac_cv_header_netdb_h=no
+          chmod 0755 missing
           bash ./configure \
             --prefix=$out \
             --build=${platform.build} \

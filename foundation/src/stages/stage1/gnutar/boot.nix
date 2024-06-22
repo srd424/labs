@@ -58,6 +58,7 @@ in {
 
             # Configure
             export CC="tcc -B ${stage1.tinycc.mes.libs.package}/lib"
+            chmod 0755 missing
             bash ./configure \
               --build=${platform.build} \
               --host=${platform.host} \

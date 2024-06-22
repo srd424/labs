@@ -68,6 +68,7 @@ in {
             export CC="tcc -B ${stage1.tinycc.mes.libs.package}/lib"
             export ac_cv_func_getpgrp_void=yes
             export ac_cv_func_tzset=yes
+            chmod 0755 missing
             bash ./configure \
               --build=${platform.build} \
               --host=${platform.host} \
