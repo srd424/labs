@@ -201,7 +201,6 @@ in
             --disable-bootstrap \
             --disable-libsanitizer \
             --disable-lto \
-            --disable-multilib \
             --disable-plugin \
             CFLAGS=-static \
             CXXFLAGS=-static
